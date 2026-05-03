@@ -10,5 +10,5 @@ export default async function MapPage() {
     redirect("/auth?mode=login&redirectTo=/map");
   }
 
-  return <MapViewV2 />;
+  return <MapViewV2 session={session} />;
 }

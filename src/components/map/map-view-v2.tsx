@@ -29,6 +29,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { listGarageRatingsAction } from "@/lib/ratings";
+import { Session } from "next-auth";
+import { FormattedDate } from "@/components/ui/formatted-date";
 
 // Dynamic import of MapClient to avoid SSR issues with Leaflet
 const MapClient = dynamic(() => import("@/components/map/map-client"), { 
@@ -36,8 +38,9 @@ const MapClient = dynamic(() => import("@/components/map/map-client"), {
   loading: () => <div className="w-full h-full bg-white/5 animate-pulse flex items-center justify-center text-muted-foreground/30 font-black uppercase tracking-widest italic">Initializing Satellite...</div>
 });
 
-export function MapViewV2() {
-  const { data: session, status: authStatus } = useSession();
+export function MapViewV2({ session: propSession }: { session?: Session | null }) {
+  const { data: clientSession, status: authStatus } = useSession();
+  const session = clientSession || propSession;
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [garages, setGarages] = useState<any[]>([]);
   const [selectedGarageId, setSelectedGarageId] = useState<number | null>(null);
@@ -114,6 +117,12 @@ export function MapViewV2() {
   const handleCreateRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedGarageId) return;
+
+    // If session is still loading, we should wait instead of redirecting
+    if (authStatus === "loading" && !propSession) {
+      setErrorMsg("Verifying credentials... Please try again in a second.");
+      return;
+    }
 
     if (!session?.user) {
       sessionStorage.setItem("sos_draft", JSON.stringify({
@@ -464,9 +473,7 @@ export function MapViewV2() {
                                       ))}
                                     </div>
                                   </div>
-                                  <span className="text-[10px] text-white/20 font-medium">
-                                    {new Date(rating.createdAt).toLocaleDateString()}
-                                  </span>
+                                  <FormattedDate date={rating.createdAt} type="date" className="text-[10px] text-white/20 font-medium" />
                                 </div>
                                 <p className="text-sm text-white/60 italic leading-relaxed">{rating.comment}</p>
                                 {rating.response && (

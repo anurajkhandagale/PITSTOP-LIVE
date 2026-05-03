@@ -30,6 +30,7 @@ export default async function ChatPage({ params }: PageProps) {
       requestId={requestId} 
       initialMessages={initialMessages}
       details={details}
+      currentUserId={session.user.id}
     />
   );
 }

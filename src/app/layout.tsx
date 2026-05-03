@@ -23,7 +23,7 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang="en" className={cn("dark scroll-smooth", inter.variable, outfit.variable)}>
+    <html lang="en" className={cn("dark scroll-smooth", inter.variable, outfit.variable)} suppressHydrationWarning>
       <body
         className={cn(
           "min-h-screen bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary font-sans"

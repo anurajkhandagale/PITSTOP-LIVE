@@ -37,9 +37,10 @@ export default async function DashboardPage() {
           initialRequests={requests} 
           stats={stats} 
           initialRatings={ratings}
+          userName={session.user.name!}
         />
       ) : (
-        <UserDashboard initialRequests={requests} stats={stats} />
+        <UserDashboard initialRequests={requests} stats={stats} userName={session.user.name!} />
       )}
     </main>
   );

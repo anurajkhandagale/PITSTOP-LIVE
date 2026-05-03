@@ -7,10 +7,14 @@ import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
 async function enrichRequest(reqRow: any) {
-  const userRows = await (db as any).select().from(usersTable).where(eq(usersTable.id as any, reqRow.userId)).limit(1);
+  const [userRows, garageRows] = await Promise.all([
+    (db as any).select().from(usersTable).where(eq(usersTable.id as any, reqRow.userId)).limit(1),
+    (db as any).select().from(garagesTable).where(eq(garagesTable.id as any, reqRow.garageId)).limit(1)
+  ]);
+  
   const user = userRows[0];
-  const garageRows = await (db as any).select().from(garagesTable).where(eq(garagesTable.id as any, reqRow.garageId)).limit(1);
   const garage = garageRows[0];
+  
   return {
     ...reqRow,
     userName: user?.name ?? null,
@@ -126,13 +130,19 @@ export async function updateRequestStatusAction(requestId: number, status: "acce
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   const userId = parseInt(session.user.id);
-  const rows = await (db as any).select().from(serviceRequestsTable).where(eq(serviceRequestsTable.id as any, requestId)).limit(1);
-  const existing = rows[0] as any;
   
+  // Consolidate validation into parallel check
+  const [requestRows, garageRows] = await Promise.all([
+    (db as any).select().from(serviceRequestsTable).where(eq(serviceRequestsTable.id as any, requestId)).limit(1),
+    (session.user as any).role === "owner" 
+      ? (db as any).select().from(garagesTable).where(eq(garagesTable.ownerId as any, userId)).limit(1)
+      : Promise.resolve([])
+  ]);
+
+  const existing = requestRows[0] as any;
   if (!existing) throw new Error("Request not found");
 
   if ((session.user as any).role === "owner") {
-    const garageRows = await (db as any).select().from(garagesTable).where(eq(garagesTable.ownerId as any, userId)).limit(1);
     const garage = garageRows[0];
     if (!garage || garage.id !== existing.garageId) throw new Error("Unauthorized");
   } else if (existing.userId !== userId) {
@@ -145,5 +155,7 @@ export async function updateRequestStatusAction(requestId: number, status: "acce
     .returning();
 
   revalidatePath("/dashboard");
+  
+  // Return updated row immediately, enrichment is done in parallel
   return enrichRequest(updated);
 }

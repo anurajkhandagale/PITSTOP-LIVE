@@ -26,6 +26,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { createRatingAction } from "@/lib/ratings";
+import { FormattedDate } from "@/components/ui/formatted-date";
 
 const STATUS_COLORS = {
   pending: "text-primary bg-primary/10 border-primary/20",
@@ -37,9 +38,10 @@ const STATUS_COLORS = {
 interface UserDashboardProps {
   initialRequests: any[];
   stats: any;
+  userName: string;
 }
 
-export function UserDashboard({ initialRequests, stats }: UserDashboardProps) {
+export function UserDashboard({ initialRequests, stats, userName }: UserDashboardProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"active" | "history">("active");
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -70,7 +72,7 @@ export function UserDashboard({ initialRequests, stats }: UserDashboardProps) {
            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest italic">
               User Terminal
            </div>
-           <h1 className="text-5xl font-black font-outfit uppercase italic tracking-tighter text-white leading-none">Your <span className="text-primary">Dashboard</span></h1>
+           <h1 className="text-5xl font-black font-outfit uppercase italic tracking-tighter text-white leading-none">Welcome <span className="text-primary">{userName}</span></h1>
         </div>
         <Link href="/map">
           <Button size="lg" className="h-20 px-10 rounded-[28px] bg-primary hover:bg-primary/90 text-white font-black uppercase italic tracking-widest text-[13px] shadow-[0_0_50px_rgba(251,26,26,0.3)] hover:scale-105 transition-all group">
@@ -156,11 +158,11 @@ export function UserDashboard({ initialRequests, stats }: UserDashboardProps) {
                                 <div className="flex items-center gap-4 mt-2 text-white/40">
                                   <div className="flex items-center gap-2">
                                      <Calendar className="w-3 h-3" />
-                                     <span className="text-[10px] font-black uppercase tracking-widest italic">{new Date(req.createdAt).toLocaleDateString()}</span>
+                                     <FormattedDate date={req.createdAt} type="date" className="text-[10px] font-black uppercase tracking-widest italic" />
                                   </div>
                                   <div className="flex items-center gap-2 text-primary">
                                      <Clock className="w-3 h-3" />
-                                     <span className="text-[10px] font-black uppercase tracking-widest italic">{new Date(req.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                     <FormattedDate date={req.createdAt} type="time" className="text-[10px] font-black uppercase tracking-widest italic" />
                                   </div>
                                 </div>
                               </div>

@@ -19,16 +19,16 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useSession } from "next-auth/react";
+import { FormattedDate } from "@/components/ui/formatted-date";
 
 interface ChatPageProps {
   requestId: number;
   initialMessages: any[];
   details: any;
+  currentUserId: string | number;
 }
 
-export default function ChatPage({ requestId, initialMessages, details }: ChatPageProps) {
-  const { data: session } = useSession();
+export default function ChatPage({ requestId, initialMessages, details, currentUserId }: ChatPageProps) {
   const [messages, setMessages] = useState<any[]>(initialMessages);
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
@@ -43,20 +43,32 @@ export default function ChatPage({ requestId, initialMessages, details }: ChatPa
     scrollToBottom();
   }, [messages]);
 
-  // Polling for new messages
+  // Polling for new messages with recursive setTimeout to prevent request stacking
   useEffect(() => {
-    const interval = setInterval(async () => {
+    let timeoutId: NodeJS.Timeout;
+    let isMounted = true;
+
+    const poll = async () => {
       try {
         const freshMessages = await listMessagesAction(requestId);
-        if (JSON.stringify(freshMessages) !== JSON.stringify(messages)) {
+        if (isMounted && JSON.stringify(freshMessages) !== JSON.stringify(messages)) {
           setMessages(freshMessages);
         }
       } catch (err) {
         console.error("Polling error:", err);
+      } finally {
+        if (isMounted) {
+          timeoutId = setTimeout(poll, 3000); // Wait 3 seconds BEFORE starting the next request
+        }
       }
-    }, 1500);
+    };
 
-    return () => clearInterval(interval);
+    poll(); // Start polling
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
   }, [requestId, messages]);
 
   const handleSend = async (e: React.FormEvent) => {
@@ -82,7 +94,7 @@ export default function ChatPage({ requestId, initialMessages, details }: ChatPa
     });
   };
 
-  const userId = session?.user?.id ? parseInt(session.user.id) : null;
+  const userId = currentUserId;
 
   return (
     <div className="h-screen flex flex-col bg-background pt-16 overflow-hidden relative">
@@ -104,11 +116,7 @@ export default function ChatPage({ requestId, initialMessages, details }: ChatPa
             </Link>
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center overflow-hidden border border-white/10">
-                 {details.isOwner ? (
-                   <User className="w-6 h-6 text-white/40" />
-                 ) : (
-                   <img src={details.garage.garageImageUrl || "https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=100"} alt="Garage" className="w-full h-full object-cover" />
-                 )}
+                 <User className="w-6 h-6 text-white/40" />
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-3">
@@ -151,7 +159,7 @@ export default function ChatPage({ requestId, initialMessages, details }: ChatPa
             </div>
           ) : (
             messages.map((msg, idx) => {
-              const isMe = msg.senderId === userId;
+              const isMe = String(msg.senderId) === String(userId);
               return (
                 <motion.div
                   key={msg.id}
@@ -160,45 +168,29 @@ export default function ChatPage({ requestId, initialMessages, details }: ChatPa
                   transition={{ duration: 0.3, ease: "easeOut" }}
                   className={cn("flex w-full", isMe ? "justify-end" : "justify-start")}
                 >
-                  <div className={cn(
-                    "max-w-[85%] md:max-w-[70%] flex flex-col gap-1.5",
-                    isMe ? "items-end" : "items-start"
-                  )}>
-                    {/* Avatar for received messages */}
-                    {!isMe && (
-                      <div className="flex items-end gap-3">
-                        <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 flex-shrink-0 bg-white/5 flex items-center justify-center">
-                          {details.isOwner ? (
-                             <User className="w-5 h-5 text-white/40" />
-                          ) : (
-                             <img src={details.garage.garageImageUrl || "https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=100"} alt="Avatar" className="w-full h-full object-cover" />
-                          )}
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <div className="px-5 py-3 rounded-[20px] rounded-bl-none text-[15px] font-medium leading-relaxed bg-[#262626] border border-white/5 text-white shadow-xl">
-                            {msg.content}
-                          </div>
-                          <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest italic ml-2">
-                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </div>
+                  <div className="max-w-[85%] md:max-w-[70%]">
+                    <div className={cn("flex items-end gap-3", isMe ? "flex-row-reverse" : "flex-row")}>
+                      {/* Consistent User Avatar for both sender and receiver */}
+                      <div className="w-10 h-10 rounded-full border border-white/10 flex-shrink-0 bg-white/5 flex items-center justify-center overflow-hidden">
+                        <User className="w-5 h-5 text-white/40" />
                       </div>
-                    )}
-
-                    {/* Me: Sent Messages (Right) */}
-                    {isMe && (
-                      <div className="flex flex-col items-end gap-1">
-                        <div className="px-5 py-3 rounded-[20px] rounded-br-none text-[15px] font-medium leading-relaxed bg-[#128C7E] text-white shadow-xl font-bold">
+                      
+                      {/* Message Bubble and Metadata */}
+                      <div className={cn("flex flex-col gap-1", isMe ? "items-end" : "items-start")}>
+                        <div className={cn(
+                          "px-5 py-3 rounded-[20px] text-[15px] font-medium leading-relaxed shadow-xl",
+                          isMe 
+                            ? "rounded-br-none bg-[#128C7E] text-white font-bold" 
+                            : "rounded-bl-none bg-[#262626] border border-white/5 text-white"
+                        )}>
                           {msg.content}
                         </div>
-                        <div className="flex items-center gap-2 px-2">
-                          <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest italic">
-                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                          <ShieldCheck className="w-3 h-3 text-primary/40" />
+                        <div className={cn("flex items-center gap-2 px-2", isMe ? "flex-row-reverse" : "flex-row")}>
+                          <FormattedDate date={msg.createdAt} type="time" className="text-[9px] font-bold text-white/20 uppercase tracking-widest italic" />
+                          {isMe && <ShieldCheck className="w-3 h-3 text-primary/40" />}
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </motion.div>
               );

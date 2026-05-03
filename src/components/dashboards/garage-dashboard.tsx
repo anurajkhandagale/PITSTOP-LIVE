@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { updateRequestStatusAction } from "@/lib/requests";
@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { FormattedDate } from "@/components/ui/formatted-date";
 
 const STATUS_COLORS = {
   pending: "text-primary bg-primary/10 border-primary/20",
@@ -43,14 +44,23 @@ interface GarageDashboardProps {
   initialRequests: any[];
   stats: any;
   initialRatings: any[];
+  userName: string;
 }
 
-export function GarageDashboard({ initialRequests, stats, initialRatings }: GarageDashboardProps) {
+export function GarageDashboard({ initialRequests, stats, initialRatings, userName }: GarageDashboardProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"pending" | "accepted" | "completed" | "rejected" | "reviews">("pending");
   const [isPending, startTransition] = useTransition();
   const [responseText, setResponseText] = useState<{ [key: number]: string }>({});
   const [isResponding, setIsResponding] = useState<{ [key: number]: boolean }>({});
+  
+  // Polling for real-time updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      router.refresh();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [router]);
 
   const filteredRequests = initialRequests.filter(r => r.status === activeTab);
 
@@ -91,7 +101,7 @@ export function GarageDashboard({ initialRequests, stats, initialRatings }: Gara
          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest italic">
             Command Center
          </div>
-         <h1 className="text-5xl font-black font-outfit uppercase italic tracking-tighter text-white">Garage <span className="text-primary">Ops</span></h1>
+         <h1 className="text-5xl font-black font-outfit uppercase italic tracking-tighter text-white">Welcome <span className="text-primary">{userName}</span></h1>
       </div>
 
       {/* Stats Grid */}
@@ -161,7 +171,7 @@ export function GarageDashboard({ initialRequests, stats, initialRatings }: Gara
                                   ))}
                                 </div>
                               </div>
-                              <span className="text-[10px] text-white/20 font-black uppercase tracking-widest italic">{new Date(rating.createdAt).toLocaleDateString()}</span>
+                              <FormattedDate date={rating.createdAt} type="date" className="text-[10px] text-white/20 font-black uppercase tracking-widest italic" />
                            </div>
                            <p className="text-lg text-white/70 italic leading-relaxed font-medium">"{rating.comment}"</p>
                            
@@ -247,10 +257,10 @@ export function GarageDashboard({ initialRequests, stats, initialRatings }: Gara
                                 {req.status}
                               </span>
                             </div>
-                            <div className="flex items-center gap-3 mt-2 text-white/40">
-                               <Clock className="w-3.5 h-3.5" />
-                               <span className="text-[10px] font-black uppercase tracking-widest">{new Date(req.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(req.createdAt).toLocaleDateString()}</span>
-                            </div>
+                             <div className="flex items-center gap-3 mt-2 text-white/40">
+                                <Clock className="w-3.5 h-3.5" />
+                                <FormattedDate date={req.createdAt} className="text-[10px] font-black uppercase tracking-widest" />
+                             </div>
                           </div>
                         </div>
 
