@@ -376,8 +376,8 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
               {step === "otp" && (
                 <motion.form key="otp" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onSubmit={handleVerifyOtp} className="space-y-10 text-center">
                   <div className="space-y-2">
-                     <h3 className="text-3xl font-black font-outfit uppercase italic text-white tracking-tighter">OTP Verification</h3>
-                     <p className="text-[10px] text-white/30 font-black uppercase tracking-widest italic">OTP dispatched to terminal</p>
+                     <h3 className="text-3xl font-black font-outfit uppercase italic text-white tracking-tighter">Security Captcha</h3>
+                     <p className="text-[10px] text-white/30 font-black uppercase tracking-widest italic">Please enter the security code shown below</p>
                   </div>
                   <Input 
                      placeholder="000000" 
@@ -392,7 +392,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                       <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
                          <Zap className="w-20 h-20 text-primary" />
                       </div>
-                      <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2 italic">Development OTP</p>
+                      <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2 italic">Security Captcha Code</p>
                       <p className="text-5xl font-black text-white tracking-[0.2em] font-outfit">{devOtp}</p>
                     </motion.div>
                   )}

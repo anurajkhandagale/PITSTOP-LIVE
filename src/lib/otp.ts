@@ -1,42 +1,9 @@
 import { db } from "@/db";
 import { otpsTable } from "@/db/schema/otps";
 import { eq, and, gt } from "drizzle-orm";
-import { transporter, FROM_EMAIL } from "./mailer";
 
 export function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-export async function sendOtpEmail(to: string, otp: string, purpose: "register" | "login" | "forgot") {
-  const subject = purpose === "register"
-    ? "Verify your PitStop Live account"
-    : purpose === "forgot" ? "Reset your PitStop Live password" : "Your PitStop Live login OTP";
-
-  const html = `
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;background:#0f172a;color:#f1f5f9;border-radius:12px;overflow:hidden">
-      <div style="background:#f59e0b;padding:24px;text-align:center">
-        <h1 style="margin:0;color:#0f172a;font-size:22px;font-weight:800">⚡ PitStop Live</h1>
-      </div>
-      <div style="padding:32px">
-        <h2 style="margin:0 0 8px;font-size:20px;color:#f1f5f9">
-          ${purpose === "register" ? "Verify your email" : purpose === "forgot" ? "Reset password" : "Your login OTP"}
-        </h2>
-        <p style="margin:0 0 24px;color:#94a3b8;font-size:15px">
-          ${purpose === "register"
-            ? "Use the code below to verify your email and complete registration."
-            : purpose === "forgot" ? "Use the code below to reset your password securely." : "Use the code below to sign in to your account."}
-          This code expires in <strong style="color:#f59e0b">10 minutes</strong>.
-        </p>
-        <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px">
-          <p style="margin:0 0 8px;font-size:12px;color:#64748b;letter-spacing:2px;text-transform:uppercase">Your OTP</p>
-          <p style="margin:0;font-size:40px;font-weight:800;letter-spacing:12px;color:#f59e0b;font-family:monospace">${otp}</p>
-        </div>
-        <p style="margin:0;color:#64748b;font-size:13px">If you didn't request this, you can safely ignore this email.</p>
-      </div>
-    </div>
-  `;
-
-  await transporter.sendMail({ from: FROM_EMAIL, to, subject, html });
 }
 
 export async function createAndSendOtp(email: string, purpose: "register" | "login" | "forgot") {
@@ -52,12 +19,7 @@ export async function createAndSendOtp(email: string, purpose: "register" | "log
   });
 
   // Log to console for development visibility
-  console.log(`\n--- [DEVELOPMENT OTP] ---\nEmail: ${email}\nOTP:   ${otp}\n------------------------\n`);
-
-  // Send email in the background so the user doesn't wait
-  sendOtpEmail(email, otp, purpose).catch((err) => {
-    console.error("Failed to send OTP in background:", err);
-  });
+  console.log(`\n--- [CAPTCHA] ---\nEmail: ${email}\nCode:   ${otp}\n------------------------\n`);
 
   return { success: true, otp };
 }
