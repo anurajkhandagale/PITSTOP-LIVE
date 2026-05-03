@@ -54,8 +54,10 @@ export async function createAndSendOtp(email: string, purpose: "register" | "log
   // Log to console for development visibility
   console.log(`\n--- [DEVELOPMENT OTP] ---\nEmail: ${email}\nOTP:   ${otp}\n------------------------\n`);
 
-  // Send email
-  await sendOtpEmail(email, otp, purpose);
+  // Send email in the background so the user doesn't wait
+  sendOtpEmail(email, otp, purpose).catch((err) => {
+    console.error("Failed to send OTP in background:", err);
+  });
 
   return { success: true, otp };
 }
