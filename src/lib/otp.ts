@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { otpsTable } from "@/db/schema/otps";
 import { eq, and, gt } from "drizzle-orm";
-import { resend, FROM_EMAIL } from "./resend";
+import { transporter, FROM_EMAIL } from "./mailer";
 
 export function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -36,7 +36,7 @@ export async function sendOtpEmail(to: string, otp: string, purpose: "register" 
     </div>
   `;
 
-  await resend.emails.send({ from: FROM_EMAIL, to, subject, html });
+  await transporter.sendMail({ from: FROM_EMAIL, to, subject, html });
 }
 
 export async function createAndSendOtp(email: string, purpose: "register" | "login" | "forgot") {
