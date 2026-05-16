@@ -23,7 +23,8 @@ import {
   Zap,
   Info,
   ChevronRight,
-  Search
+  Search,
+  LocateFixed
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -61,6 +62,22 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
   const [searchAddress, setSearchAddress] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [isLocating, setIsLocating] = useState(false);
+
+  const handleRecenter = () => {
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setSearchAddress("");
+        setIsLocating(false);
+      },
+      () => {
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true }
+    );
+  };
 
   const selectedGarage = garages.find(g => g.id === selectedGarageId);
 
@@ -215,6 +232,16 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
             selectedGarageId={selectedGarageId}
             onSelectGarage={(id) => setSelectedGarageId(id)}
           />
+
+          {/* Recenter Button */}
+          <Button 
+            onClick={handleRecenter}
+            disabled={isLocating}
+            className="absolute bottom-6 right-6 md:bottom-8 md:right-8 z-10 w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(251,26,26,0.3)] flex items-center justify-center p-0 border border-white/20"
+            title="Recenter to my location"
+          >
+            <LocateFixed className={cn("w-5 h-5 md:w-6 md:h-6", isLocating && "animate-pulse")} />
+          </Button>
           
           {/* Quick Stats Overlay (Stats only, Search moved) */}
           <div className="absolute top-8 left-8 right-8 md:right-auto md:w-[400px] z-10 flex flex-col gap-4 pointer-events-none">
