@@ -5,7 +5,7 @@ import { usersTable } from "@/db/schema/users";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { createAndSendOtp, verifyOtp } from "@/lib/otp";
-import { signIn } from "@/auth";
+import { signIn, auth } from "@/auth";
 import { AuthError } from "next-auth";
 import { z } from "zod";
 import fs from "fs/promises";
@@ -84,7 +84,7 @@ export async function uploadFileAction(formData: FormData) {
 
 export async function registerAction(
   values: z.infer<typeof RegisterSchema>, 
-  extra: { govIdUrl?: string; garageImageUrl?: string; redirectTo?: string }
+  extra: { govIdUrl?: string; garageImageUrl?: string; profileImageUrl?: string; redirectTo?: string }
 ) {
   const parsed = RegisterSchema.safeParse(values);
   if (!parsed.success) return { error: "Invalid registration data" };
@@ -111,6 +111,7 @@ export async function registerAction(
       emailVerified: true,
       govIdUrl: extra.govIdUrl,
       garageImageUrl: extra.garageImageUrl,
+      profileImageUrl: extra.profileImageUrl,
     }).returning();
 
     // If owner, create garage profile
@@ -197,13 +198,26 @@ export async function resetPasswordAction(values: any) {
   }
 }
 
-export async function updateUserAction(data: { name: string; newPassword?: string }) {
+export async function updateUserAction(data: { name: string; currentPassword?: string; newPassword?: string; profileImageUrl?: string }) {
   const session = await auth();
   if (!session?.user?.id) return { error: "Unauthorized" };
 
   try {
+    const userRows = await (db as any).select().from(usersTable).where(eq(usersTable.id as any, parseInt(session.user.id))).limit(1);
+    const user = userRows[0];
+    if (!user) return { error: "User not found" };
+
     const updates: any = { name: data.name };
+    
+    if (data.profileImageUrl) {
+      updates.profileImageUrl = data.profileImageUrl;
+    }
+
     if (data.newPassword && data.newPassword.trim().length >= 6) {
+      if (!data.currentPassword) return { error: "Current password is required to set a new password" };
+      const isValid = await bcrypt.compare(data.currentPassword, user.passwordHash);
+      if (!isValid) return { error: "Current password is incorrect" };
+      
       updates.passwordHash = await bcrypt.hash(data.newPassword, 10);
     }
     
