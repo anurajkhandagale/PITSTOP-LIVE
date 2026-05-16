@@ -6,9 +6,20 @@ if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL must be specified");
 }
 
+const getConnectionString = () => {
+  let url = process.env.DATABASE_URL as string;
+  // Suppress pg v9 SSL warning by adding uselibpqcompat=true if sslmode=require is present
+  if (url.includes("sslmode=require")) {
+    url = url.replace("sslmode=require", "sslmode=require&uselibpqcompat=true");
+  } else if (!url.includes("sslmode=")) {
+    url += url.includes("?") ? "&sslmode=verify-full" : "?sslmode=verify-full";
+  }
+  return url;
+};
+
 const createPool = () => {
   return new pg.Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: getConnectionString(),
     ssl: { rejectUnauthorized: false }, // Avoid SSL errors depending on DB config
     max: 10, // Limit connections per pool
   });
