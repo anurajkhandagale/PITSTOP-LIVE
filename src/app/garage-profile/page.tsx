@@ -132,7 +132,7 @@ export default function GarageProfilePage({ initialGarage }: GarageProfilePagePr
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Garage Name</label>
-                    <Input placeholder="e.g. Sharma Auto Motors" value={name} onChange={(e) => setName(e.target.value)} required />
+                    <Input placeholder="e.g. Sharma Auto Motors" value={name} onChange={(e) => setName(e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Description</label>

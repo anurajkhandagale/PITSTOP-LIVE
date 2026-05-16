@@ -198,7 +198,7 @@ export async function resetPasswordAction(values: any) {
   }
 }
 
-export async function updateUserAction(data: { name: string; currentPassword?: string; newPassword?: string; profileImageUrl?: string }) {
+export async function updateUserAction(data: { name?: string; currentPassword?: string; newPassword?: string; profileImageUrl?: string }) {
   const session = await auth();
   if (!session?.user?.id) return { error: "Unauthorized" };
 
@@ -207,7 +207,10 @@ export async function updateUserAction(data: { name: string; currentPassword?: s
     const user = userRows[0];
     if (!user) return { error: "User not found" };
 
-    const updates: any = { name: data.name };
+    const updates: any = {};
+    if (data.name && data.name.trim() !== "") {
+      updates.name = data.name;
+    }
     
     if (data.profileImageUrl) {
       updates.profileImageUrl = data.profileImageUrl;

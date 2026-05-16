@@ -121,8 +121,7 @@ export default function AccountProfilePage() {
                     value={name} 
                     onChange={(e) => setName(e.target.value)} 
                     className="h-12 bg-white/5 border-white/10 text-white font-bold placeholder:text-white/20"
-                    placeholder="Enter your name"
-                    required
+                    placeholder="Leave blank to keep current name"
                   />
                 </div>
 
