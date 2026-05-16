@@ -22,7 +22,8 @@ import {
   ShieldCheck,
   Zap,
   Info,
-  ChevronRight
+  ChevronRight,
+  Search
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -56,6 +57,9 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [garageRatings, setGarageRatings] = useState<any[]>([]);
   const [isRatingsLoading, setIsRatingsLoading] = useState(false);
+
+  const [searchAddress, setSearchAddress] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const selectedGarage = garages.find(g => g.id === selectedGarageId);
 
@@ -111,6 +115,22 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
       console.error("Failed to load ratings:", err);
     } finally {
       setIsRatingsLoading(false);
+    }
+  };
+
+  const handleSearchLocation = async () => {
+    if (!searchAddress) return;
+    setIsSearching(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        setUserLocation({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
+      }
+    } catch (err) {
+      console.error("Location search failed:", err);
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -176,9 +196,31 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
             onSelectGarage={(id) => setSelectedGarageId(id)}
           />
           
-          {/* Quick Stats Overlay */}
-          <div className="absolute top-8 left-8 z-10 flex gap-4 pointer-events-none">
-            <div className="glass p-5 rounded-[24px] flex items-center gap-5 shadow-2xl pointer-events-auto border-white/10">
+          {/* Quick Stats Overlay & Search Bar */}
+          <div className="absolute top-8 left-8 right-8 md:right-auto md:w-[400px] z-10 flex flex-col gap-4 pointer-events-none">
+            {/* Search Bar */}
+            <div className="flex gap-2 pointer-events-auto">
+               <div className="relative flex-1">
+                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+                 <Input 
+                   placeholder="Search breakdown location..." 
+                   value={searchAddress}
+                   onChange={(e) => setSearchAddress(e.target.value)}
+                   onKeyDown={(e) => e.key === 'Enter' && handleSearchLocation()}
+                   className="w-full h-14 pl-12 rounded-2xl bg-black/60 backdrop-blur-xl border-white/10 text-white font-bold placeholder:text-white/30 focus:border-primary/50 transition-all shadow-2xl"
+                 />
+               </div>
+               <Button 
+                 onClick={handleSearchLocation} 
+                 disabled={isSearching}
+                 className="h-14 px-6 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase italic shadow-lg shadow-primary/30"
+               >
+                 {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+               </Button>
+            </div>
+
+            {/* Stats */}
+            <div className="glass p-5 rounded-[24px] flex items-center gap-5 shadow-2xl pointer-events-auto border-white/10 w-fit">
               <div className="w-12 h-12 rounded-[18px] bg-primary/20 flex items-center justify-center text-primary shadow-[0_0_20px_rgba(251,26,26,0.2)]">
                 <Navigation className="w-6 h-6" />
               </div>

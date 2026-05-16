@@ -15,7 +15,8 @@ import {
   Loader2, 
   Info,
   ExternalLink,
-  CheckCircle
+  CheckCircle,
+  Search
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -27,6 +28,7 @@ export default function GarageProfilePage({ initialGarage }: GarageProfilePagePr
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
 
   // Form State
   const [name, setName] = useState(initialGarage?.name || "");
@@ -58,6 +60,27 @@ export default function GarageProfilePage({ initialGarage }: GarageProfilePagePr
       setError(err.message || "Failed to save profile");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGeocode = async () => {
+    if (!address) return;
+    setIsGeocoding(true);
+    setError("");
+    setSuccess(false);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        setLat(parseFloat(data[0].lat));
+        setLng(parseFloat(data[0].lon));
+      } else {
+        setError("Location not found. Please try adding city/state.");
+      }
+    } catch (err) {
+      setError("Geocoding failed.");
+    } finally {
+      setIsGeocoding(false);
     }
   };
 
@@ -125,7 +148,18 @@ export default function GarageProfilePage({ initialGarage }: GarageProfilePagePr
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-muted-foreground flex items-center gap-2 font-mono uppercase tracking-widest"><MapPin className="w-3 h-3" /> Address</label>
-                      <Input placeholder="123, MG Road, Bangalore" value={address} onChange={(e) => setAddress(e.target.value)} />
+                      <div className="flex gap-2">
+                        <Input placeholder="123, MG Road, Bangalore" value={address} onChange={(e) => setAddress(e.target.value)} className="flex-1" />
+                        <Button 
+                          type="button" 
+                          variant="secondary"
+                          onClick={handleGeocode} 
+                          disabled={isGeocoding}
+                          className="px-4"
+                        >
+                          {isGeocoding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

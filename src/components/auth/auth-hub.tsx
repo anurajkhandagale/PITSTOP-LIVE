@@ -23,7 +23,8 @@ import {
   Car,
   FileUp,
   ShieldCheck,
-  CheckCircle
+  CheckCircle,
+  Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { 
@@ -58,6 +59,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isGeocoding, setIsGeocoding] = useState(false);
 
   const [garageName, setGarageName] = useState("");
   const [services, setServices] = useState("");
@@ -122,6 +124,25 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
     } finally {
       if (type === "govId") setUploadingGovId(false);
       else setUploadingGarageImage(false);
+    }
+  };
+
+  const handleGeocode = async () => {
+    if (!address) return;
+    setIsGeocoding(true);
+    setError("");
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        setLocation({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
+      } else {
+        setError("Location not found. Please try adding city/state.");
+      }
+    } catch (err) {
+      setError("Geocoding failed.");
+    } finally {
+      setIsGeocoding(false);
     }
   };
 
@@ -407,7 +428,17 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                       
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-white/30 uppercase tracking-widest pl-1">Address</label>
-                        <Input placeholder="123, MG Road, Bangalore" value={address} onChange={(e) => setAddress(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest" required />
+                        <div className="flex gap-2">
+                          <Input placeholder="123, MG Road, Bangalore" value={address} onChange={(e) => setAddress(e.target.value)} className="h-16 flex-1 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest" required />
+                          <Button 
+                            type="button" 
+                            onClick={handleGeocode} 
+                            disabled={isGeocoding}
+                            className="h-16 px-6 bg-white/5 hover:bg-white/10 text-white border border-white/5 rounded-2xl transition-all"
+                          >
+                            {isGeocoding ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+                          </Button>
+                        </div>
                       </div>
                       
                       <div className="space-y-3">
