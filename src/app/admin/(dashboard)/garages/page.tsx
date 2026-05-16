@@ -3,9 +3,10 @@ import { db } from "@/db";
 import { garagesTable, usersTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Store, MapPin, Trash2, CheckCircle } from "lucide-react";
+import { Search, Store, MapPin, Trash2, CheckCircle, ExternalLink } from "lucide-react";
 import { FormattedDate } from "@/components/ui/formatted-date";
 import { Button } from "@/components/ui/button";
+import { SafeImage } from "@/components/ui/safe-image";
 
 export default async function AdminGaragesPage() {
   const session = await auth();
@@ -20,7 +21,8 @@ export default async function AdminGaragesPage() {
       createdAt: garagesTable.createdAt,
       ownerName: usersTable.name,
       ownerEmail: usersTable.email,
-      govIdUrl: usersTable.govIdUrl,
+      govIdUrl: garagesTable.govIdUrl,
+      garageImageUrl: garagesTable.garageImageUrl,
     })
     .from(garagesTable)
     .leftJoin(usersTable, eq(garagesTable.ownerId, usersTable.id));
@@ -61,8 +63,12 @@ export default async function AdminGaragesPage() {
                 <tr key={garage.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-                        <Store className="w-5 h-5 text-blue-500" />
+                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 overflow-hidden">
+                        {garage.garageImageUrl ? (
+                          <SafeImage src={garage.garageImageUrl} alt={garage.name} className="w-full h-full object-cover" fallbackSrc="https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=100&auto=format&fit=crop" />
+                        ) : (
+                          <Store className="w-5 h-5 text-blue-500" />
+                        )}
                       </div>
                       <div>
                         <p className="font-bold text-white uppercase italic">{garage.name}</p>
@@ -76,9 +82,14 @@ export default async function AdminGaragesPage() {
                   </td>
                   <td className="p-4">
                     {garage.govIdUrl ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                        <CheckCircle className="w-3 h-3" /> Verified
-                      </span>
+                      <div className="space-y-1">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                          <CheckCircle className="w-3 h-3" /> Verified
+                        </span>
+                        <a href={garage.govIdUrl} target="_blank" rel="noreferrer" className="block text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1 font-bold">
+                          View Document <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
                     ) : (
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/10 text-white/50 border border-white/10">
                         Pending

@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { usersTable } from "@/db/schema";
 import { desc } from "drizzle-orm";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, UserCog, MoreVertical, Trash2 } from "lucide-react";
+import { Search, UserCog, MoreVertical, Trash2, ExternalLink, FileBadge } from "lucide-react";
 import { FormattedDate } from "@/components/ui/formatted-date";
 import { Button } from "@/components/ui/button";
 import { SafeImage } from "@/components/ui/safe-image";
@@ -41,6 +41,7 @@ export default async function AdminUsersPage() {
               <tr>
                 <th className="p-4">User</th>
                 <th className="p-4">Role</th>
+                <th className="p-4">Documents</th>
                 <th className="p-4">Joined</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
@@ -71,6 +72,15 @@ export default async function AdminUsersPage() {
                     }`}>
                       {user.role}
                     </span>
+                  </td>
+                  <td className="p-4">
+                    {user.govIdUrl ? (
+                      <a href={user.govIdUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-400 hover:text-blue-300 border border-blue-500/20 transition-colors">
+                        <FileBadge className="w-3 h-3" /> View ID
+                      </a>
+                    ) : (
+                      <span className="text-white/20 text-xs italic">None</span>
+                    )}
                   </td>
                   <td className="p-4">
                     <FormattedDate date={user.createdAt} type="date" className="text-white/70" />
