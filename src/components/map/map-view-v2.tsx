@@ -268,15 +268,10 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex gap-4 min-w-0">
                           <div className={cn(
-                            "w-14 h-14 rounded-[20px] overflow-hidden flex-shrink-0 border transition-all",
-                            selectedGarageId === garage.id ? "border-primary/50" : "border-white/10"
+                            "w-14 h-14 rounded-[20px] overflow-hidden flex-shrink-0 border flex items-center justify-center transition-all",
+                            selectedGarageId === garage.id ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/5"
                           )}>
-                            <SafeImage 
-                              src={garage.garageImageUrl || ""} 
-                              alt={garage.name} 
-                              className="w-full h-full object-cover" 
-                              fallbackSrc="https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=100&auto=format&fit=crop"
-                            />
+                            <Store className={cn("w-6 h-6", selectedGarageId === garage.id ? "text-primary" : "text-white/40")} />
                           </div>
                           <div className="min-w-0 space-y-1">
                             <div className="flex items-center gap-2">
@@ -455,14 +450,12 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
 
               <div className="flex-1 overflow-y-auto scrollbar-none">
                 <div className="relative h-64 md:h-80 w-full">
-                  <SafeImage 
-                    src={selectedGarage.garageImageUrl || ""} 
-                    className="w-full h-full object-cover" 
-                    alt={selectedGarage.name}
-                    fallbackSrc="https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=800"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-                  <div className="absolute bottom-10 left-10 space-y-4">
+                  <div className="absolute inset-0 bg-[#0a0a0a] overflow-hidden flex items-center justify-end md:justify-center px-10">
+                     <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-background to-background" />
+                     <Store className="w-64 h-64 text-white/5 rotate-12 -mr-20 md:mr-0 scale-150 relative z-0" />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+                  <div className="absolute bottom-10 left-10 right-10 space-y-4">
                      <div className="flex items-center gap-3">
                         <h2 className="text-4xl md:text-6xl font-black font-outfit uppercase italic tracking-tighter text-white">{selectedGarage.name}</h2>
                         {selectedGarage.isVerified && (

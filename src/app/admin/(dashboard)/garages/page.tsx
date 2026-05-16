@@ -63,12 +63,8 @@ export default async function AdminGaragesPage() {
                 <tr key={garage.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 overflow-hidden">
-                        {garage.garageImageUrl ? (
-                          <SafeImage src={garage.garageImageUrl} alt={garage.name} className="w-full h-full object-cover" fallbackSrc="https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=100&auto=format&fit=crop" />
-                        ) : (
-                          <Store className="w-5 h-5 text-blue-500" />
-                        )}
+                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
+                        <Store className="w-5 h-5 text-blue-500" />
                       </div>
                       <div>
                         <p className="font-bold text-white uppercase italic">{garage.name}</p>
