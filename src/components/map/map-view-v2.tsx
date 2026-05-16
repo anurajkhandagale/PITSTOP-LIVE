@@ -109,8 +109,7 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
     const timeout = setTimeout(async () => {
       if (searchAddress.trim().length > 3 && !isSearching) {
         try {
-          const viewbox = userLocation ? `&viewbox=${userLocation.lng-1},${userLocation.lat+1},${userLocation.lng+1},${userLocation.lat-1}` : '';
-          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&limit=5&countrycodes=in${viewbox}`);
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&limit=15&countrycodes=in`);
           const data = await res.json();
           setSuggestions(data);
         } catch (err) {
@@ -158,8 +157,7 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
     if (!searchAddress) return;
     setIsSearching(true);
     try {
-      const viewbox = userLocation ? `&viewbox=${userLocation.lng-1},${userLocation.lat+1},${userLocation.lng+1},${userLocation.lat-1}` : '';
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&countrycodes=in${viewbox}`);
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&countrycodes=in`);
       const data = await res.json();
       if (data && data.length > 0) {
         setUserLocation({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
@@ -237,7 +235,7 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
           <Button 
             onClick={handleRecenter}
             disabled={isLocating}
-            className="absolute bottom-6 right-6 md:bottom-8 md:right-8 z-10 w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(251,26,26,0.3)] flex items-center justify-center p-0 border border-white/20"
+            className="absolute bottom-6 right-6 md:bottom-8 md:right-8 z-[1000] w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(251,26,26,0.3)] flex items-center justify-center p-0 border border-white/20"
             title="Recenter to my location"
           >
             <LocateFixed className={cn("w-5 h-5 md:w-6 md:h-6", isLocating && "animate-pulse")} />
