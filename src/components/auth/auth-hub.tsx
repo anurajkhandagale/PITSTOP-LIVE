@@ -24,7 +24,9 @@ import {
   FileUp,
   ShieldCheck,
   CheckCircle,
-  Search
+  Search,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { 
@@ -60,6 +62,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isGeocoding, setIsGeocoding] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [garageName, setGarageName] = useState("");
   const [services, setServices] = useState("");
@@ -354,17 +357,28 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                     </div>
 
                     {mode !== "forgot" && (
-                      <div className="space-y-2 relative">
+                      <div className="space-y-2">
                         <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Password</label>
-                        <Input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold tracking-[0.5em] transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
-                        {mode === "login" && (
+                        <div className="relative">
+                          <Input type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold tracking-[0.5em] transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10 pr-12" required />
                           <button 
-                            type="button" 
-                            onClick={() => handleModeChange("forgot")}
-                            className="absolute right-4 bottom-5 text-[9px] font-black text-primary hover:text-white uppercase tracking-widest transition-colors italic"
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
                           >
-                            Forget Password?
+                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                           </button>
+                        </div>
+                        {mode === "login" && (
+                          <div className="flex justify-end pt-1">
+                            <button 
+                              type="button" 
+                              onClick={() => handleModeChange("forgot")}
+                              className="text-[9px] font-black text-primary hover:text-white uppercase tracking-widest transition-colors italic"
+                            >
+                              Forget Password?
+                            </button>
+                          </div>
                         )}
                       </div>
                     )}
@@ -401,9 +415,18 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                      <h3 className="text-3xl font-black font-outfit uppercase italic text-white tracking-tighter">New Password</h3>
                      <p className="text-[10px] text-white/30 font-black uppercase tracking-widest italic">Enter your new password</p>
                   </div>
-                  <div className="space-y-2 relative text-left">
+                  <div className="space-y-2 text-left">
                     <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">New Password</label>
-                    <Input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold tracking-[0.5em] transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
+                    <div className="relative">
+                      <Input type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold tracking-[0.5em] transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10 pr-12" required />
+                      <button 
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
                   </div>
                   <Button type="submit" disabled={loading} className="w-full h-20 bg-white text-black rounded-3xl font-black font-outfit uppercase tracking-widest italic text-sm hover:bg-white/90 shadow-2xl shadow-white/10 mt-4 group">
                      {loading ? <Loader2 className="animate-spin" /> : "Reset Password"}
