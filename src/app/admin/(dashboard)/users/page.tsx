@@ -51,7 +51,7 @@ export default async function AdminUsersPage() {
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center overflow-hidden shrink-0">
                         {user.profileImageUrl ? (
-                          <img src={user.profileImageUrl} alt={user.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${user.name}&background=random`; }} />
+                          <img src={user.profileImageUrl} alt={user.name} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = `https://ui-avatars.com/api/?name=${user.name}&background=random`; }} />
                         ) : (
                           <UserCog className="w-5 h-5 text-white/40" />
                         )}

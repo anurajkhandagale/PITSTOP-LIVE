@@ -75,7 +75,7 @@ export async function uploadFileAction(formData: FormData) {
     await fs.writeFile(filePath, buffer);
     
     console.log(`[UPLOAD SUCCESS] File saved to: ${filePath}`);
-    return { url: `/uploads/${filename}` };
+    return { url: `/api/uploads/${filename}` };
   } catch (error: any) {
     console.error("[UPLOAD FATAL ERROR]", error);
     return { error: `Upload failed: ${error.message || "Unknown error"}` };

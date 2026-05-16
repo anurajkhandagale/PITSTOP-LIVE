@@ -275,7 +275,8 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
                               alt={garage.name} 
                               className="w-full h-full object-cover" 
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=100&auto=format&fit=crop";
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = "https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=100&auto=format&fit=crop";
                               }}
                             />
                           </div>
@@ -461,7 +462,8 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
                     className="w-full h-full object-cover" 
                     alt={selectedGarage.name}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=800";
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=800";
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
