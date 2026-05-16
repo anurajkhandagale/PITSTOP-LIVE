@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { serviceRequestsTable, usersTable, garagesTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, AlertTriangle, Trash2, Zap } from "lucide-react";
 import { FormattedDate } from "@/components/ui/formatted-date";
@@ -31,7 +31,7 @@ export default async function AdminRequestsPage() {
     .from(serviceRequestsTable)
     .leftJoin(usersTable, eq(serviceRequestsTable.userId, usersTable.id))
     .leftJoin(garagesTable, eq(serviceRequestsTable.garageId, garagesTable.id))
-    .orderBy((db as any).desc(serviceRequestsTable.createdAt));
+    .orderBy(desc(serviceRequestsTable.createdAt));
 
   return (
     <div className="space-y-8">

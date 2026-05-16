@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { usersTable } from "@/db/schema";
+import { desc } from "drizzle-orm";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, UserCog, MoreVertical, Trash2 } from "lucide-react";
 import { FormattedDate } from "@/components/ui/formatted-date";
@@ -10,7 +11,7 @@ export default async function AdminUsersPage() {
   const session = await auth();
 
   // Fetch all users
-  const users = await (db as any).select().from(usersTable).orderBy((db as any).desc(usersTable.createdAt));
+  const users = await (db as any).select().from(usersTable).orderBy(desc(usersTable.createdAt));
 
   return (
     <div className="space-y-8">
