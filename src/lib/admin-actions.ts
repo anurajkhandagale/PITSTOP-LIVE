@@ -1,9 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { usersTable } from "@/db/schema/users";
-import { garagesTable } from "@/db/schema/garages";
-import { serviceRequestsTable } from "@/db/schema/requests";
+import { usersTable, garagesTable, serviceRequestsTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import bcrypt from "bcryptjs";
