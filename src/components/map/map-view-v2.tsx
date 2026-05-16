@@ -199,15 +199,7 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
             onSelectGarage={(id) => setSelectedGarageId(id)}
           />
 
-          {/* Recenter Button */}
-          <Button 
-            onClick={handleRecenter}
-            disabled={isLocating}
-            className="absolute bottom-6 right-6 md:bottom-8 md:right-8 z-[1000] w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(251,26,26,0.3)] flex items-center justify-center p-0 border border-white/20"
-            title="Recenter to my location"
-          >
-            <LocateFixed className={cn("w-5 h-5 md:w-6 md:h-6", isLocating && "animate-pulse")} />
-          </Button>
+
           
           {/* Quick Stats Overlay (Stats only, Search moved) */}
           <div className="absolute top-8 left-8 right-8 md:right-auto md:w-[400px] z-10 flex flex-col gap-4 pointer-events-none">
@@ -227,9 +219,19 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
         {/* Sidebar Garage List */}
         <aside className="w-full md:w-[400px] flex flex-col bg-background/80 backdrop-blur-3xl overflow-hidden glass z-20 h-[50vh] md:h-auto">
           <div className="p-8 border-b border-white/5 space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-3xl font-black font-outfit uppercase italic tracking-tighter text-white">Nearby <span className="text-primary">Garages</span></h2>
-              <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">Scanning 10km radius for active service hubs</p>
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h2 className="text-3xl font-black font-outfit uppercase italic tracking-tighter text-white">Nearby <span className="text-primary">Garages</span></h2>
+                <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">Scanning 10km radius</p>
+              </div>
+              <Button 
+                onClick={handleRecenter}
+                disabled={isLocating}
+                className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-white border border-white/10 flex items-center justify-center p-0 shrink-0 shadow-lg"
+                title="Recenter to my location"
+              >
+                <LocateFixed className={cn("w-5 h-5 text-primary", isLocating && "animate-pulse")} />
+              </Button>
             </div>
             
 
