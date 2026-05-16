@@ -23,6 +23,7 @@ export default function MapClient({
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMap = useRef<L.Map | null>(null);
   const markersRef = useRef<{ [key: number]: L.Marker }>({});
+  const userMarkerRef = useRef<L.Marker | null>(null);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -66,7 +67,11 @@ export default function MapClient({
 
       // Clear previous user marker by checking for a specific tag or just adding a unique one
       // For now, we just add it. In a production app, we'd track the user marker specifically.
-      L.marker([userLocation.lat, userLocation.lng], { icon: userIcon })
+      if (userMarkerRef.current) {
+        userMarkerRef.current.remove();
+      }
+      
+      userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon })
         .addTo(map)
         .bindPopup("<span class='text-[10px] font-black uppercase tracking-widest text-primary italic'>System Locator: Active</span>");
       

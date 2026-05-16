@@ -224,14 +224,17 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
                 <h2 className="text-3xl font-black font-outfit uppercase italic tracking-tighter text-white">Nearby <span className="text-primary">Garages</span></h2>
                 <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">Scanning 10km radius</p>
               </div>
-              <Button 
-                onClick={handleRecenter}
-                disabled={isLocating}
-                className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-white border border-white/10 flex items-center justify-center p-0 shrink-0 shadow-lg"
-                title="Recenter to my location"
-              >
-                <LocateFixed className={cn("w-5 h-5 text-primary", isLocating && "animate-pulse")} />
-              </Button>
+              <div className="flex flex-col items-center justify-center gap-1.5 shrink-0">
+                <Button 
+                  onClick={handleRecenter}
+                  disabled={isLocating}
+                  className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-white border border-white/10 flex items-center justify-center p-0 shadow-lg"
+                  title="Recenter to my location"
+                >
+                  <LocateFixed className={cn("w-5 h-5 text-primary", isLocating && "animate-pulse")} />
+                </Button>
+                <span className="text-[8px] font-black uppercase tracking-widest text-white/40 italic">Recenter</span>
+              </div>
             </div>
             
 
