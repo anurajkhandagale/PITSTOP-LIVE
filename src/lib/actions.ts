@@ -123,6 +123,8 @@ export async function registerAction(
         address: parsed.data.address || "",
         lat: parsed.data.lat || 12.9716, // Default to Bangalore center if not picked
         lng: parsed.data.lng || 77.5946,
+        garageImageUrl: extra.garageImageUrl,
+        govIdUrl: extra.govIdUrl,
       });
     }
 

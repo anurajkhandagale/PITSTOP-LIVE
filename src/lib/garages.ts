@@ -34,7 +34,7 @@ export async function getGarageWithRating(garageId: number, userLat?: number, us
       phone: garagesTable.phone,
       avgRating: sql<number>`AVG(${ratingsTable.stars})`,
       totalRatings: sql<number>`COUNT(${ratingsTable.id})`,
-      garageImageUrl: usersTable.garageImageUrl,
+      garageImageUrl: garagesTable.garageImageUrl,
       isVerified: sql<boolean>`CASE WHEN ${usersTable.govIdUrl} IS NOT NULL THEN true ELSE false END`,
     })
     .from(garagesTable as any)
@@ -69,7 +69,7 @@ export async function listGaragesAction(userLat?: number, userLng?: number, radi
       phone: garagesTable.phone,
       avgRating: sql<number>`AVG(${ratingsTable.stars})`,
       totalRatings: sql<number>`COUNT(${ratingsTable.id})`,
-      garageImageUrl: usersTable.garageImageUrl,
+      garageImageUrl: garagesTable.garageImageUrl,
       isVerified: sql<boolean>`CASE WHEN ${usersTable.govIdUrl} IS NOT NULL THEN true ELSE false END`,
     })
     .from(garagesTable as any)
