@@ -72,11 +72,14 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
   const [location, setLocation] = useState({ lat: 12.9716, lng: 77.5946 });
   const [govIdUrl, setGovIdUrl] = useState("");
   const [garageImageUrl, setGarageImageUrl] = useState("");
+  const [profileImageUrl, setProfileImageUrl] = useState("");
 
   const [uploadingGovId, setUploadingGovId] = useState(false);
   const [uploadingGarageImage, setUploadingGarageImage] = useState(false);
+  const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
   const govIdInputRef = useRef<HTMLInputElement>(null);
   const garageImageInputRef = useRef<HTMLInputElement>(null);
+  const profileImageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const modeParam = searchParams.get("mode");
@@ -121,12 +124,13 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
     resetState();
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "govId" | "garageImage") => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "govId" | "garageImage" | "profileImage") => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (type === "govId") setUploadingGovId(true);
-    else setUploadingGarageImage(true);
+    else if (type === "garageImage") setUploadingGarageImage(true);
+    else setUploadingProfileImage(true);
     
     setError("");
     const formData = new FormData();
@@ -136,7 +140,8 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
       const res = await uploadFileAction(formData);
       if (res.url) {
         if (type === "govId") setGovIdUrl(res.url);
-        else setGarageImageUrl(res.url);
+        else if (type === "garageImage") setGarageImageUrl(res.url);
+        else setProfileImageUrl(res.url);
       } else {
         setError(res.error || "File upload failed");
       }
@@ -144,7 +149,8 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
       setError("Server error during upload");
     } finally {
       if (type === "govId") setUploadingGovId(false);
-      else setUploadingGarageImage(false);
+      else if (type === "garageImage") setUploadingGarageImage(false);
+      else setUploadingProfileImage(false);
     }
   };
 
@@ -239,7 +245,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
     setError("");
     const result = await registerAction(
       { name, email, password, role, garageName, services, phone, address, lat: location.lat, lng: location.lng },
-      { govIdUrl, garageImageUrl, redirectTo: searchParams.get("redirectTo") || undefined }
+      { govIdUrl, garageImageUrl, profileImageUrl, redirectTo: searchParams.get("redirectTo") || undefined }
     );
     setLoading(false);
     if (result?.error) setError(result.error);
@@ -363,9 +369,18 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                 <motion.form key="details" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} onSubmit={handleAction} className="space-y-8">
                   <div className="space-y-6">
                     {mode === "register" && (
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Full Name</label>
-                        <Input placeholder="e.g. Rahul Sharma" value={name} onChange={(e) => setName(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold uppercase tracking-widest transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
+                      <div className="flex gap-4 items-end">
+                        <div 
+                          onClick={() => profileImageInputRef.current?.click()}
+                          className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:bg-white/[0.05] transition-all overflow-hidden shrink-0"
+                        >
+                          <input type="file" ref={profileImageInputRef} onChange={(e) => handleFileUpload(e, "profileImage")} className="hidden" accept="image/*" />
+                          {uploadingProfileImage ? <Loader2 className="w-5 h-5 text-primary animate-spin" /> : profileImageUrl ? <img src={profileImageUrl} className="w-full h-full object-cover" /> : <User className="w-5 h-5 text-white/30" />}
+                        </div>
+                        <div className="space-y-2 flex-1">
+                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Full Name</label>
+                          <Input placeholder="e.g. Rahul Sharma" value={name} onChange={(e) => setName(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold uppercase tracking-widest transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
+                        </div>
                       </div>
                     )}
                     

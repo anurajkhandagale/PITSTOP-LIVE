@@ -97,11 +97,18 @@ export function GarageDashboard({ initialRequests, stats, initialRatings, userNa
   return (
     <div className="space-y-12">
       {/* Page Header */}
-      <div className="space-y-2">
-         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest italic">
-            Command Center
-         </div>
-         <h1 className="text-5xl font-black font-outfit uppercase italic tracking-tighter text-white">Welcome <span className="text-primary">{userName}</span></h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+        <div className="space-y-2">
+           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest italic">
+              Command Center
+           </div>
+           <h1 className="text-5xl font-black font-outfit uppercase italic tracking-tighter text-white">Welcome <span className="text-primary">{userName}</span></h1>
+        </div>
+        <Link href="/profile">
+           <Button size="lg" variant="outline" className="h-16 px-8 rounded-[24px] border-white/10 text-white hover:bg-white/5 font-black uppercase italic tracking-widest text-[13px] transition-all">
+              Settings
+           </Button>
+        </Link>
       </div>
 
       {/* Stats Grid */}

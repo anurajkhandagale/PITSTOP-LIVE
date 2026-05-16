@@ -11,6 +11,7 @@ export const usersTable = pgTable("users", {
   emailVerified: boolean("email_verified").notNull().default(false),
   govIdUrl: text("gov_id_url"),
   garageImageUrl: text("garage_image_url"),
+  profileImageUrl: text("profile_image_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

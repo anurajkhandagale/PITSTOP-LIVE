@@ -74,11 +74,18 @@ export function UserDashboard({ initialRequests, stats, userName }: UserDashboar
            </div>
            <h1 className="text-5xl font-black font-outfit uppercase italic tracking-tighter text-white leading-none">Welcome <span className="text-primary">{userName}</span></h1>
         </div>
-        <Link href="/map">
-          <Button size="lg" className="h-20 px-10 rounded-[28px] bg-primary hover:bg-primary/90 text-white font-black uppercase italic tracking-widest text-[13px] shadow-[0_0_50px_rgba(251,26,26,0.3)] hover:scale-105 transition-all group">
-            <Zap className="w-5 h-5 mr-3 group-hover:scale-125 transition-transform" /> New Help Request
-          </Button>
-        </Link>
+        <div className="flex gap-4">
+          <Link href="/profile">
+             <Button size="lg" variant="outline" className="h-20 px-8 rounded-[28px] border-white/10 text-white hover:bg-white/5 font-black uppercase italic tracking-widest text-[13px] transition-all">
+                Settings
+             </Button>
+          </Link>
+          <Link href="/map">
+            <Button size="lg" className="h-20 px-10 rounded-[28px] bg-primary hover:bg-primary/90 text-white font-black uppercase italic tracking-widest text-[13px] shadow-[0_0_50px_rgba(251,26,26,0.3)] hover:scale-105 transition-all group">
+              <Zap className="w-5 h-5 mr-3 group-hover:scale-125 transition-transform" /> New Help Request
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">

@@ -5,19 +5,54 @@ import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { updateUserAction } from "@/lib/actions";
-import { User, Lock, Loader2, CheckCircle } from "lucide-react";
+import { updateUserAction, uploadFileAction } from "@/lib/actions";
+import { User, Lock, Loader2, CheckCircle, Upload } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRef, useEffect } from "react";
 
 export default function AccountProfilePage() {
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
   const [name, setName] = useState(session?.user?.name || "");
+  const [profileImageUrl, setProfileImageUrl] = useState((session?.user as any)?.profileImageUrl || "");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (session?.user) {
+      setName(session.user.name || "");
+      setProfileImageUrl((session.user as any).profileImageUrl || "");
+    }
+  }, [session]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError("");
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await uploadFileAction(formData);
+      if (res.url) {
+        setProfileImageUrl(res.url);
+      } else {
+        setError(res.error || "File upload failed");
+      }
+    } catch (err) {
+      setError("Server error during upload");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,12 +60,15 @@ export default function AccountProfilePage() {
     setError("");
     setSuccess(false);
 
-    const res = await updateUserAction({ name, newPassword });
+    const res = await updateUserAction({ name, currentPassword, newPassword, profileImageUrl });
     if (res.error) {
       setError(res.error);
     } else {
       setSuccess(true);
-      setNewPassword(""); // Clear password field on success
+      setCurrentPassword("");
+      setNewPassword(""); 
+      // Force session refresh
+      await updateSession({ name, profileImageUrl });
     }
     setLoading(false);
   };
@@ -56,6 +94,27 @@ export default function AccountProfilePage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="flex justify-center mb-6">
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="relative w-24 h-24 rounded-full bg-white/5 border border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-all overflow-hidden group"
+                  >
+                    <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*" />
+                    {uploading ? (
+                      <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                    ) : profileImageUrl ? (
+                      <>
+                        <img src={profileImageUrl} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Upload className="w-6 h-6 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      <User className="w-8 h-8 text-white/30 group-hover:text-white/50" />
+                    )}
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest italic">Full Name</label>
                   <Input 
@@ -67,17 +126,33 @@ export default function AccountProfilePage() {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest italic">New Password (Optional)</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input 
-                      type="password" 
-                      value={newPassword} 
-                      onChange={(e) => setNewPassword(e.target.value)} 
-                      className="h-12 pl-12 bg-white/5 border-white/10 text-white font-bold placeholder:text-white/20"
-                      placeholder="Leave blank to keep current password"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest italic">Current Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        type="password" 
+                        value={currentPassword} 
+                        onChange={(e) => setCurrentPassword(e.target.value)} 
+                        className="h-12 pl-12 bg-white/5 border-white/10 text-white font-bold placeholder:text-white/20"
+                        placeholder="Required for password change"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest italic">New Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        type="password" 
+                        value={newPassword} 
+                        onChange={(e) => setNewPassword(e.target.value)} 
+                        className="h-12 pl-12 bg-white/5 border-white/10 text-white font-bold placeholder:text-white/20"
+                        placeholder="Leave blank to keep"
+                      />
+                    </div>
                   </div>
                 </div>
 
