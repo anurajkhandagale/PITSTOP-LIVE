@@ -1,18 +1,12 @@
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
-import { Navbar } from "@/components/navbar";
 import { db } from "@/db";
 import { usersTable, garagesTable, serviceRequestsTable } from "@/db/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Store, AlertTriangle } from "lucide-react";
 import { FormattedDate } from "@/components/ui/formatted-date";
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardOverview() {
   const session = await auth();
-
-  if (!session?.user) {
-    redirect("/auth?mode=login");
-  }
 
   // Fetch all data for the admin overview
   const [users, garages, requests] = await Promise.all([
@@ -22,15 +16,13 @@ export default async function AdminDashboardPage() {
   ]);
 
   return (
-    <main className="min-h-screen bg-background">
-      <Navbar />
-      <div className="pt-24 px-6 md:px-12 pb-12 max-w-7xl mx-auto space-y-12">
-        <div className="space-y-2">
-          <h1 className="text-4xl md:text-5xl font-black font-outfit uppercase italic tracking-tighter text-white">
-            System <span className="text-primary">Admin</span>
-          </h1>
-          <p className="text-muted-foreground font-medium italic">Global oversight of all platform activity.</p>
-        </div>
+    <div className="space-y-12">
+      <div className="space-y-2">
+        <h1 className="text-4xl md:text-5xl font-black font-outfit uppercase italic tracking-tighter text-white">
+          System <span className="text-red-500">Overview</span>
+        </h1>
+        <p className="text-white/50 font-medium text-sm">Global metrics and recent activity across the PitStop Live network.</p>
+      </div>
 
         {/* Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -121,7 +113,6 @@ export default async function AdminDashboardPage() {
             </div>
           </Card>
         </div>
-      </div>
-    </main>
+    </div>
   );
 }
