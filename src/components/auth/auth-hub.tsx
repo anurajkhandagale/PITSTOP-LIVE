@@ -273,7 +273,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
         </div>
 
         {/* Right Side: Form Logic */}
-        <div className="flex-1 p-10 lg:p-20 relative">
+        <div className="flex-1 p-6 sm:p-10 lg:p-20 relative">
           <div className="max-w-md mx-auto space-y-12">
             {/* Form Header */}
             <div className="space-y-4">
@@ -387,16 +387,16 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                     <div className="space-y-2 relative">
                        <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Security Captcha</label>
                        <div className="flex gap-4">
-                         <div className="w-1/3 h-16 bg-primary/10 rounded-2xl border border-primary/20 flex items-center justify-center select-none relative overflow-hidden">
+                         <div className="w-28 flex-shrink-0 h-16 bg-primary/10 rounded-2xl border border-primary/20 flex items-center justify-center select-none relative overflow-hidden">
                            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-50 pointer-events-none" />
-                           <span className="text-xl font-black tracking-[0.3em] text-primary font-outfit italic relative z-10">{captchaCode}</span>
+                           <span className="text-xl font-black tracking-[0.3em] text-primary font-outfit italic relative z-10 pl-1">{captchaCode}</span>
                          </div>
                          <Input 
-                           placeholder="ENTER CODE" 
+                           placeholder="CODE" 
                            value={otp} 
                            onChange={(e) => setOtp(e.target.value)} 
                            maxLength={6}
-                           className="flex-1 h-16 rounded-2xl bg-white/[0.03] border-white/5 text-center text-white font-bold tracking-[0.3em] transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50" 
+                           className="flex-1 h-16 rounded-2xl bg-white/[0.03] border-white/5 text-center text-white font-bold tracking-[0.3em] transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 min-w-0" 
                            required 
                          />
                        </div>

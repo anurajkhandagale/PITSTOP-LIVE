@@ -186,9 +186,9 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden relative">
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Main Map View */}
-        <div className="flex-1 relative border-r border-white/5">
+        <div className="flex-1 relative border-b md:border-b-0 md:border-r border-white/5 min-h-[50vh] md:min-h-0">
           <MapClient 
             userLocation={userLocation} 
             garages={garages} 
@@ -196,29 +196,8 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
             onSelectGarage={(id) => setSelectedGarageId(id)}
           />
           
-          {/* Quick Stats Overlay & Search Bar */}
+          {/* Quick Stats Overlay (Stats only, Search moved) */}
           <div className="absolute top-8 left-8 right-8 md:right-auto md:w-[400px] z-10 flex flex-col gap-4 pointer-events-none">
-            {/* Search Bar */}
-            <div className="flex gap-2 pointer-events-auto">
-               <div className="relative flex-1">
-                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-                 <Input 
-                   placeholder="Search breakdown location..." 
-                   value={searchAddress}
-                   onChange={(e) => setSearchAddress(e.target.value)}
-                   onKeyDown={(e) => e.key === 'Enter' && handleSearchLocation()}
-                   className="w-full h-14 pl-12 rounded-2xl bg-black/60 backdrop-blur-xl border-white/10 text-white font-bold placeholder:text-white/30 focus:border-primary/50 transition-all shadow-2xl"
-                 />
-               </div>
-               <Button 
-                 onClick={handleSearchLocation} 
-                 disabled={isSearching}
-                 className="h-14 px-6 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase italic shadow-lg shadow-primary/30"
-               >
-                 {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-               </Button>
-            </div>
-
             {/* Stats */}
             <div className="glass p-5 rounded-[24px] flex items-center gap-5 shadow-2xl pointer-events-auto border-white/10 w-fit">
               <div className="w-12 h-12 rounded-[18px] bg-primary/20 flex items-center justify-center text-primary shadow-[0_0_20px_rgba(251,26,26,0.2)]">
@@ -233,10 +212,33 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
         </div>
 
         {/* Sidebar Garage List */}
-        <aside className="w-[400px] flex flex-col bg-background/80 backdrop-blur-3xl overflow-hidden glass border-l border-white/5 z-20">
-          <div className="p-8 border-b border-white/5 space-y-1">
-            <h2 className="text-3xl font-black font-outfit uppercase italic tracking-tighter text-white">Nearby <span className="text-primary">Garages</span></h2>
-            <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">Scanning 10km radius for active service hubs</p>
+        <aside className="w-full md:w-[400px] flex flex-col bg-background/80 backdrop-blur-3xl overflow-hidden glass z-20 h-[50vh] md:h-auto">
+          <div className="p-8 border-b border-white/5 space-y-6">
+            <div className="space-y-1">
+              <h2 className="text-3xl font-black font-outfit uppercase italic tracking-tighter text-white">Nearby <span className="text-primary">Garages</span></h2>
+              <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">Scanning 10km radius for active service hubs</p>
+            </div>
+            
+            {/* Search Bar Moved Here */}
+            <div className="flex gap-2 w-full">
+                 <div className="relative flex-1">
+                   <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+                   <Input 
+                     placeholder="Search breakdown location..." 
+                     value={searchAddress}
+                     onChange={(e) => setSearchAddress(e.target.value)}
+                     onKeyDown={(e) => e.key === 'Enter' && handleSearchLocation()}
+                     className="w-full h-12 pl-12 rounded-2xl bg-black/60 backdrop-blur-xl border-white/10 text-white font-bold placeholder:text-white/30 focus:border-primary/50 transition-all shadow-xl text-xs"
+                   />
+                 </div>
+                 <Button 
+                   onClick={handleSearchLocation} 
+                   disabled={isSearching}
+                   className="h-12 px-5 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase italic shadow-lg shadow-primary/30"
+                 >
+                   {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                 </Button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 py-8 space-y-5 scrollbar-none">

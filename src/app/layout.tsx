@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/navbar";
 import { UniversalBackButton } from "@/components/ui/back-button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { auth } from "@/auth";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -39,6 +40,7 @@ export default async function RootLayout({
           </div>
           
           <UniversalBackButton />
+          <ThemeToggle />
           <div className="relative z-10 pt-20">
             {children}
           </div>
