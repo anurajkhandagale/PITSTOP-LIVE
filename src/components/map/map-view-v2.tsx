@@ -59,9 +59,7 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
   const [garageRatings, setGarageRatings] = useState<any[]>([]);
   const [isRatingsLoading, setIsRatingsLoading] = useState(false);
 
-  const [searchAddress, setSearchAddress] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+
   const [isLocating, setIsLocating] = useState(false);
 
   const handleRecenter = () => {
@@ -69,7 +67,6 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setSearchAddress("");
         setIsLocating(false);
       },
       () => {
@@ -105,22 +102,7 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
     }
   }, [authStatus]);
 
-  useEffect(() => {
-    const timeout = setTimeout(async () => {
-      if (searchAddress.trim().length > 3 && !isSearching) {
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&limit=15&countrycodes=in`);
-          const data = await res.json();
-          setSuggestions(data);
-        } catch (err) {
-          console.error("Suggestion fetch failed:", err);
-        }
-      } else {
-        setSuggestions([]);
-      }
-    }, 800);
-    return () => clearTimeout(timeout);
-  }, [searchAddress, isSearching]);
+
 
   useEffect(() => {
     async function loadGarages() {
@@ -153,21 +135,7 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
     }
   };
 
-  const handleSearchLocation = async () => {
-    if (!searchAddress) return;
-    setIsSearching(true);
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&countrycodes=in`);
-      const data = await res.json();
-      if (data && data.length > 0) {
-        setUserLocation({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
-      }
-    } catch (err) {
-      console.error("Location search failed:", err);
-    } finally {
-      setIsSearching(false);
-    }
-  };
+
 
   const handleCreateRequest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -264,48 +232,7 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
               <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">Scanning 10km radius for active service hubs</p>
             </div>
             
-            {/* Search Bar Moved Here */}
-            <div className="flex gap-2 w-full relative">
-                 <div className="relative flex-1">
-                   <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-                   <Input 
-                     placeholder="Search breakdown location..." 
-                     value={searchAddress}
-                     onChange={(e) => setSearchAddress(e.target.value)}
-                     onKeyDown={(e) => {
-                       if (e.key === 'Enter') {
-                         setSuggestions([]);
-                         handleSearchLocation();
-                       }
-                     }}
-                     className="w-full h-12 pl-12 rounded-2xl bg-black/60 backdrop-blur-xl border-white/10 text-white font-bold placeholder:text-white/30 focus:border-primary/50 transition-all shadow-xl text-xs"
-                   />
-                   {suggestions.length > 0 && (
-                     <div className="absolute top-full left-0 right-0 mt-2 bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
-                       {suggestions.map((s, i) => (
-                         <button 
-                           key={i}
-                           onClick={() => {
-                             setSearchAddress(s.display_name);
-                             setSuggestions([]);
-                             setUserLocation({ lat: parseFloat(s.lat), lng: parseFloat(s.lon) });
-                           }}
-                           className="w-full text-left px-4 py-3 text-[11px] text-white/80 hover:bg-white/10 border-b border-white/5 last:border-0 truncate"
-                         >
-                           {s.display_name}
-                         </button>
-                       ))}
-                     </div>
-                   )}
-                 </div>
-                 <Button 
-                   onClick={handleSearchLocation} 
-                   disabled={isSearching}
-                   className="h-12 px-5 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase italic shadow-lg shadow-primary/30"
-                 >
-                   {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-                 </Button>
-            </div>
+
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 py-8 space-y-5 scrollbar-none">
