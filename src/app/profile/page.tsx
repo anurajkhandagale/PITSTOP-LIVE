@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { updateUserAction, uploadFileAction } from "@/lib/actions";
 import { User, Lock, Loader2, CheckCircle, Upload } from "lucide-react";
+import { SafeImage } from "@/components/ui/safe-image";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -104,7 +105,7 @@ export default function AccountProfilePage() {
                       <Loader2 className="w-6 h-6 text-primary animate-spin" />
                     ) : profileImageUrl ? (
                       <>
-                        <img src={profileImageUrl} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "https://ui-avatars.com/api/?name=User&background=random"; }} />
+                        <SafeImage src={profileImageUrl} className="w-full h-full object-cover" fallbackSrc="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" />
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                           <Upload className="w-6 h-6 text-white" />
                         </div>

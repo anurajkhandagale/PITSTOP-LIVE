@@ -33,6 +33,7 @@ import { useSession } from "next-auth/react";
 import { listGarageRatingsAction } from "@/lib/ratings";
 import { Session } from "next-auth";
 import { FormattedDate } from "@/components/ui/formatted-date";
+import { SafeImage } from "@/components/ui/safe-image";
 
 // Dynamic import of MapClient to avoid SSR issues with Leaflet
 const MapClient = dynamic(() => import("@/components/map/map-client"), { 
@@ -270,14 +271,11 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
                             "w-14 h-14 rounded-[20px] overflow-hidden flex-shrink-0 border transition-all",
                             selectedGarageId === garage.id ? "border-primary/50" : "border-white/10"
                           )}>
-                            <img 
-                              src={garage.garageImageUrl || "https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=100&auto=format&fit=crop"} 
+                            <SafeImage 
+                              src={garage.garageImageUrl || ""} 
                               alt={garage.name} 
                               className="w-full h-full object-cover" 
-                              onError={(e) => {
-                                e.currentTarget.onerror = null;
-                                e.currentTarget.src = "https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=100&auto=format&fit=crop";
-                              }}
+                              fallbackSrc="https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=100&auto=format&fit=crop"
                             />
                           </div>
                           <div className="min-w-0 space-y-1">
@@ -457,14 +455,11 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
 
               <div className="flex-1 overflow-y-auto scrollbar-none">
                 <div className="relative h-64 md:h-80 w-full">
-                  <img 
-                    src={selectedGarage.garageImageUrl || "https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=800"} 
+                  <SafeImage 
+                    src={selectedGarage.garageImageUrl || ""} 
                     className="w-full h-full object-cover" 
                     alt={selectedGarage.name}
-                    onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = "https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=800";
-                    }}
+                    fallbackSrc="https://images.unsplash.com/photo-1486006396113-ad7302ff178c?q=80&w=800"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
                   <div className="absolute bottom-10 left-10 space-y-4">

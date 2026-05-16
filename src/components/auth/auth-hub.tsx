@@ -375,7 +375,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                           className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:bg-white/[0.05] transition-all overflow-hidden shrink-0"
                         >
                           <input type="file" ref={profileImageInputRef} onChange={(e) => handleFileUpload(e, "profileImage")} className="hidden" accept="image/*" />
-                          {uploadingProfileImage ? <Loader2 className="w-5 h-5 text-primary animate-spin" /> : profileImageUrl ? <img src={profileImageUrl} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "https://ui-avatars.com/api/?name=User&background=random"; }} /> : <User className="w-5 h-5 text-white/30" />}
+                          {uploadingProfileImage ? <Loader2 className="w-5 h-5 text-primary animate-spin" /> : profileImageUrl ? <SafeImage src={profileImageUrl} className="w-full h-full object-cover" fallbackSrc="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" /> : <User className="w-5 h-5 text-white/30" />}
                         </div>
                         <div className="space-y-2 flex-1">
                           <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Full Name</label>
