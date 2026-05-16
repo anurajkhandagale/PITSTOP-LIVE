@@ -44,9 +44,10 @@ export default function RegistrationMap({ location, setLocation }: RegistrationM
         attributionControl: false
       }).setView([location.lat, location.lng], 13);
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19
+      L.tileLayer("https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}", {
+        attribution: '&copy; Google Maps',
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        maxZoom: 20
       }).addTo(leafletMap.current);
 
       L.control.zoom({ position: 'bottomright' }).addTo(leafletMap.current);

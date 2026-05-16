@@ -342,7 +342,7 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
                        <div className="relative group">
                          <Car className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-primary group-focus-within:scale-110 transition-transform" />
                          <Input 
-                           placeholder="Type of Vehicle (e.g. BMW X5, Black)" 
+                           placeholder="Type of Vehicle (e.g. Maruti Swift, White)" 
                            className="h-20 pl-16 rounded-3xl bg-white/5 border-white/5 text-white font-bold text-lg placeholder:text-white/20 focus:bg-primary/5 focus:border-primary/40 transition-all shadow-inner"
                            value={vehicleType}
                            onChange={(e) => setVehicleType(e.target.value)}

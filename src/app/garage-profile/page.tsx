@@ -91,7 +91,7 @@ export default function GarageProfilePage({ initialGarage }: GarageProfilePagePr
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Garage Name</label>
-                    <Input placeholder="PitStop Advanced Garage" value={name} onChange={(e) => setName(e.target.value)} required />
+                    <Input placeholder="e.g. Sharma Auto Motors" value={name} onChange={(e) => setName(e.target.value)} required />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Description</label>
@@ -121,11 +121,11 @@ export default function GarageProfilePage({ initialGarage }: GarageProfilePagePr
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-muted-foreground flex items-center gap-2 font-mono uppercase tracking-widest"><Phone className="w-3 h-3" /> Phone Number</label>
-                      <Input placeholder="+91 9999999999" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                      <Input placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-muted-foreground flex items-center gap-2 font-mono uppercase tracking-widest"><MapPin className="w-3 h-3" /> Address</label>
-                      <Input placeholder="123 Main St, Bangalore" value={address} onChange={(e) => setAddress(e.target.value)} />
+                      <Input placeholder="123, MG Road, Bangalore" value={address} onChange={(e) => setAddress(e.target.value)} />
                     </div>
                   </div>
                 </CardContent>

@@ -149,16 +149,11 @@ export async function registerAction(
 export async function loginAction(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const otp = formData.get("otp") as string;
   const redirectTo = (formData.get("redirectTo") as string) || "/dashboard";
 
-  if (!email || !password || !otp) {
+  if (!email || !password) {
     return { error: "Missing required fields" };
   }
-
-  // Verify OTP first
-  const isOtpValid = await verifyOtp(email, otp, "login");
-  if (!isOtpValid) return { error: "Invalid or expired OTP" };
 
   try {
     await signIn("credentials", { email, password, redirect: false });
@@ -176,8 +171,7 @@ export async function forgotPasswordAction(email: string) {
     const existing = await (db as any).select().from(usersTable).where(eq(usersTable.email as any, email)).limit(1);
     if (existing.length === 0) return { error: "No account found with this email" };
 
-    const { otp } = await createAndSendOtp(email, "forgot");
-    return { success: true, otp };
+    return { success: true };
   } catch (error) {
     console.error("Forgot password error:", error);
     return { error: "Step failed" };
@@ -185,11 +179,9 @@ export async function forgotPasswordAction(email: string) {
 }
 
 export async function resetPasswordAction(values: any) {
-  const { email, otp, newPassword } = values;
+  const { email, newPassword } = values;
 
   try {
-    const isOtpValid = await verifyOtp(email, otp, "forgot");
-    if (!isOtpValid) return { error: "Invalid or expired reset code" };
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
     await (db as any).update(usersTable)

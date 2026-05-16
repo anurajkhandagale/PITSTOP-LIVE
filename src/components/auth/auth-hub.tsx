@@ -49,12 +49,12 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
   const [mode, setMode] = useState<"login" | "register" | "forgot">(initialMode ? "login" : "register");
   const [role, setRole] = useState<"user" | "owner">("user");
   
-  const [step, setStep] = useState<"details" | "otp" | "garage_info" | "documents" | "reset">("details");
+  const [step, setStep] = useState<"details" | "garage_info" | "documents" | "reset">("details");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
-  const [devOtp, setDevOtp] = useState("");
+  const [captchaCode, setCaptchaCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -81,12 +81,16 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
     if (roleParam) setRole(roleParam);
   }, [searchParams]);
 
+  useEffect(() => {
+    setCaptchaCode(Math.floor(100000 + Math.random() * 900000).toString());
+  }, [mode]);
+
   const resetState = () => {
     setError("");
     setSuccess("");
     setStep("details");
-    setDevOtp("");
     setOtp("");
+    setCaptchaCode(Math.floor(100000 + Math.random() * 900000).toString());
   };
 
   const handleModeChange = (newMode: "login" | "register" | "forgot") => {
@@ -123,36 +127,13 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
 
   const handleAction = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    
-    try {
-      if (mode === "forgot") {
-        const res = await forgotPasswordAction(email);
-        if (res.success) {
-          setStep("otp");
-          if ((res as any).otp) setDevOtp((res as any).otp);
-        } else {
-          setError(res.error || "No account found");
-        }
-      } else {
-        const res = await sendOtpAction(email, mode as any);
-        if (res.success) {
-          setStep("otp");
-          if ((res as any).otp) setDevOtp((res as any).otp);
-        } else {
-          setError(res.error || "Failed to send code");
-        }
-      }
-    } catch (err) {
-      setError("An unexpected error occurred");
-    } finally {
-      setLoading(false);
+    if (otp !== captchaCode) {
+      setError("Invalid Captcha Code");
+      setCaptchaCode(Math.floor(100000 + Math.random() * 900000).toString());
+      setOtp("");
+      return;
     }
-  };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
     setLoading(true);
     setError("");
     
@@ -161,35 +142,33 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
         const formData = new FormData();
         formData.append("email", email);
         formData.append("password", password);
-        formData.append("otp", otp);
         
         const result = await loginAction(formData);
         if (result?.error) {
           setError(result.error);
         } else {
-          // If no error, the server action likely redirected. 
-          // If not, we force a hard navigation to the redirect URL
           const redirectTo = searchParams.get("redirectTo") || "/dashboard";
           router.push(redirectTo);
         }
-      } else if (mode === "forgot") {
-        const res = await verifyOtpAction(email, otp, "forgot");
-        if (res.success) setStep("reset");
-        else setError("Invalid reset code");
-      } else {
-        const res = await verifyOtpAction(email, otp, "register");
-        if (res.success) {
-          if (role === "owner") setStep("garage_info");
-          else await handleFinalRegister();
+      } else if (mode === "register") {
+        if (role === "owner") {
+          setStep("garage_info");
         } else {
-          setError("Invalid verification code");
+          await handleFinalRegister();
+        }
+      } else if (mode === "forgot") {
+        const res = await forgotPasswordAction(email);
+        if (res.success) {
+          setStep("reset");
+        } else {
+          setError(res.error || "No account found");
         }
       }
     } catch (err: any) {
       if (err?.digest?.startsWith("NEXT_REDIRECT") || err?.message?.includes("NEXT_REDIRECT")) {
         throw err;
       }
-      setError("Verification failed");
+      setError("Action failed");
     } finally {
       setLoading(false);
     }
@@ -199,12 +178,15 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const res = await resetPasswordAction({ email, otp, newPassword: password });
+    const res = await resetPasswordAction({ email, newPassword: password });
     setLoading(false);
     if (res.success) {
       setSuccess("Account recovered! You can now log in.");
       setMode("login");
       setStep("details");
+      setPassword("");
+      setCaptchaCode(Math.floor(100000 + Math.random() * 900000).toString());
+      setOtp("");
     } else {
       setError(res.error || "Reset failed");
     }
@@ -261,7 +243,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
            <div className="pt-12 md:pt-0">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/5 w-fit">
                  <ShieldCheck className="w-4 h-4 text-primary" />
-                 <span className="text-[10px] font-black uppercase tracking-widest text-white/60 italic">Neural Encryption Active</span>
+                 <span className="text-[10px] font-black uppercase tracking-widest text-white/60 italic">Secure Connection Active</span>
               </div>
            </div>
         </div>
@@ -276,7 +258,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                     onClick={() => setStep("details")}
                     className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:text-white transition-all group italic"
                   >
-                    <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" /> Revert Stream
+                    <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" /> Back
                   </button>
                )}
                <div className="space-y-1">
@@ -284,7 +266,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                     {mode === "login" ? "Authentication" : mode === "forgot" ? "Recovery" : "Registration"}
                   </h2>
                   <div className="flex items-center gap-2 text-white/40 text-xs font-medium">
-                     <span>{mode === "login" ? "Resume your session" : mode === "forgot" ? "Reset security credentials" : "Initialize new node"}</span>
+                     <span>{mode === "login" ? "Log in to your account" : mode === "forgot" ? "Reset your password" : "Create a new account"}</span>
                      <span className="w-1 h-1 rounded-full bg-white/10" />
                      <button 
                       onClick={() => handleModeChange(mode === "login" ? "register" : "login")}
@@ -320,7 +302,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                     role === "user" ? "text-white" : "text-white/30 hover:text-white/50"
                   )}
                 >
-                  <User className="w-4 h-4" /> Node: Driver
+                  <User className="w-4 h-4" /> Driver
                 </button>
                 <button 
                   onClick={() => setRole("owner")}
@@ -329,7 +311,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                     role === "owner" ? "text-white" : "text-white/30 hover:text-white/50"
                   )}
                 >
-                  <Store className="w-4 h-4" /> Node: Provider
+                  <Store className="w-4 h-4" /> Garage Owner
                 </button>
               </div>
             )}
@@ -340,19 +322,19 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                   <div className="space-y-6">
                     {mode === "register" && (
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Subject Name</label>
-                        <Input placeholder="OPERATOR NAME" value={name} onChange={(e) => setName(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold uppercase tracking-widest transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
+                        <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Full Name</label>
+                        <Input placeholder="e.g. Rahul Sharma" value={name} onChange={(e) => setName(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold uppercase tracking-widest transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
                       </div>
                     )}
                     
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Communication Link (Email)</label>
-                       <Input type="email" placeholder="EMAIL@PITSTOP.LIVE" value={email} onChange={(e) => setEmail(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold uppercase tracking-widest transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
+                       <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Email Address</label>
+                       <Input type="email" placeholder="rahul@example.in" value={email} onChange={(e) => setEmail(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold uppercase tracking-widest transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
                     </div>
 
                     {mode !== "forgot" && (
                       <div className="space-y-2 relative">
-                        <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Security Hash (Password)</label>
+                        <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Password</label>
                         <Input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold tracking-[0.5em] transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
                         {mode === "login" && (
                           <button 
@@ -360,44 +342,50 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                             onClick={() => handleModeChange("forgot")}
                             className="absolute right-4 bottom-5 text-[9px] font-black text-primary hover:text-white uppercase tracking-widest transition-colors italic"
                           >
-                            Lost Credentials?
+                            Forget Password?
                           </button>
                         )}
                       </div>
                     )}
+
+                    {/* Captcha Section */}
+                    <div className="space-y-2 relative">
+                       <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Security Captcha</label>
+                       <div className="flex gap-4">
+                         <div className="w-1/3 h-16 bg-primary/10 rounded-2xl border border-primary/20 flex items-center justify-center select-none relative overflow-hidden">
+                           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-50 pointer-events-none" />
+                           <span className="text-xl font-black tracking-[0.3em] text-primary font-outfit italic relative z-10">{captchaCode}</span>
+                         </div>
+                         <Input 
+                           placeholder="ENTER CODE" 
+                           value={otp} 
+                           onChange={(e) => setOtp(e.target.value)} 
+                           maxLength={6}
+                           className="flex-1 h-16 rounded-2xl bg-white/[0.03] border-white/5 text-center text-white font-bold tracking-[0.3em] transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50" 
+                           required 
+                         />
+                       </div>
+                    </div>
                   </div>
                   
                   <Button type="submit" disabled={loading} className="w-full h-20 text-sm font-black font-outfit uppercase italic tracking-[0.2em] text-white bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/20 rounded-3xl mt-4 group">
-                    {loading ? <Loader2 className="animate-spin" /> : <>{mode === "login" ? "Execute Login" : mode === "forgot" ? "Request Override" : "Initialize Link"} <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-2 transition-transform" /></>}
+                    {loading ? <Loader2 className="animate-spin" /> : <>{mode === "login" ? "Login" : mode === "forgot" ? "Reset Password" : "Sign Up"} <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-2 transition-transform" /></>}
                   </Button>
                 </motion.form>
               )}
 
-              {step === "otp" && (
-                <motion.form key="otp" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onSubmit={handleVerifyOtp} className="space-y-10 text-center">
+              {step === "reset" && (
+                <motion.form key="reset" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onSubmit={handlePasswordReset} className="space-y-10 text-center">
                   <div className="space-y-2">
-                     <h3 className="text-3xl font-black font-outfit uppercase italic text-white tracking-tighter">Security Captcha</h3>
-                     <p className="text-[10px] text-white/30 font-black uppercase tracking-widest italic">Please enter the security code shown below</p>
+                     <h3 className="text-3xl font-black font-outfit uppercase italic text-white tracking-tighter">New Password</h3>
+                     <p className="text-[10px] text-white/30 font-black uppercase tracking-widest italic">Enter your new password</p>
                   </div>
-                  <Input 
-                     placeholder="000000" 
-                     className="text-center text-6xl font-black tracking-[0.5em] h-32 bg-white/[0.03] border-white/5 text-primary rounded-[32px] focus:bg-white/5 focus:border-primary/50 transition-all shadow-inner" 
-                     maxLength={6} 
-                     value={otp}
-                     onChange={(e) => setOtp(e.target.value)}
-                     autoFocus
-                  />
-                  {devOtp && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-8 rounded-[32px] bg-primary/5 border border-primary/20 relative overflow-hidden group">
-                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                         <Zap className="w-20 h-20 text-primary" />
-                      </div>
-                      <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2 italic">Security Captcha Code</p>
-                      <p className="text-5xl font-black text-white tracking-[0.2em] font-outfit">{devOtp}</p>
-                    </motion.div>
-                  )}
-                  <Button type="submit" disabled={loading} className="w-full h-20 bg-white text-black rounded-3xl font-black font-outfit uppercase tracking-widest italic text-sm hover:bg-white/90 shadow-2xl shadow-white/10">
-                     {loading ? <Loader2 className="animate-spin" /> : "Authorize Entry"}
+                  <div className="space-y-2 relative text-left">
+                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">New Password</label>
+                    <Input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold tracking-[0.5em] transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
+                  </div>
+                  <Button type="submit" disabled={loading} className="w-full h-20 bg-white text-black rounded-3xl font-black font-outfit uppercase tracking-widest italic text-sm hover:bg-white/90 shadow-2xl shadow-white/10 mt-4 group">
+                     {loading ? <Loader2 className="animate-spin" /> : "Reset Password"}
                   </Button>
                 </motion.form>
               )}
@@ -408,29 +396,29 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                    <div className="space-y-6">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-white/30 uppercase tracking-widest pl-1">Station Name</label>
-                          <Input placeholder="NAME" value={garageName} onChange={(e) => setGarageName(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest" required />
+                          <label className="text-[10px] font-black text-white/30 uppercase tracking-widest pl-1">Garage Name</label>
+                          <Input placeholder="e.g. Sharma Auto Motors" value={garageName} onChange={(e) => setGarageName(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest" required />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-white/30 uppercase tracking-widest pl-1">Contact Link</label>
-                          <Input placeholder="+12..." value={phone} onChange={(e) => setPhone(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest" required />
+                          <label className="text-[10px] font-black text-white/30 uppercase tracking-widest pl-1">Phone Number</label>
+                          <Input placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest" required />
                         </div>
                       </div>
                       
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-white/30 uppercase tracking-widest pl-1">Geo-Location Descriptor</label>
-                        <Input placeholder="PHYSICAL ADDRESS" value={address} onChange={(e) => setAddress(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest" required />
+                        <label className="text-[10px] font-black text-white/30 uppercase tracking-widest pl-1">Address</label>
+                        <Input placeholder="123, MG Road, Bangalore" value={address} onChange={(e) => setAddress(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest" required />
                       </div>
                       
                       <div className="space-y-3">
-                        <label className="text-[10px] font-black text-primary uppercase tracking-[0.3em] pl-1 italic">Mapping Matrix</label>
+                        <label className="text-[10px] font-black text-primary uppercase tracking-[0.3em] pl-1 italic">Map Location</label>
                         <div className="h-[240px] rounded-[32px] overflow-hidden border border-white/10 shadow-inner group">
                           <RegistrationMap location={location} setLocation={setLocation} />
                         </div>
                       </div>
                    </div>
                    <Button onClick={() => setStep("documents")} className="w-full h-20 bg-primary text-white font-black font-outfit uppercase italic tracking-widest rounded-3xl hover:bg-primary/90 shadow-2xl shadow-primary/20 group">
-                    Advance to Validation <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                    Next Step <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-2 transition-transform" />
                   </Button>
                 </motion.div>
               )}
@@ -447,7 +435,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                      >
                         <input type="file" ref={govIdInputRef} onChange={(e) => handleFileUpload(e, "govId")} className="hidden" accept="image/*,.pdf" />
                         {uploadingGovId ? <Loader2 className="w-6 h-6 text-primary animate-spin" /> : govIdUrl ? <CheckCircle className="w-10 h-10 text-emerald-500" /> : <FileUp className="w-10 h-10 text-white/10 group-hover:text-primary transition-all mb-3" />}
-                        <p className={cn("text-[10px] font-black uppercase tracking-widest italic", govIdUrl ? "text-emerald-500" : "text-white/20 group-hover:text-primary")}>{govIdUrl ? "IDENTIFIED" : "GOVT SCAN"}</p>
+                        <p className={cn("text-[10px] font-black uppercase tracking-widest italic", govIdUrl ? "text-emerald-500" : "text-white/20 group-hover:text-primary")}>{govIdUrl ? "UPLOADED" : "GOVT ID"}</p>
                      </div>
 
                      <div 
@@ -459,7 +447,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                      >
                         <input type="file" ref={garageImageInputRef} onChange={(e) => handleFileUpload(e, "garageImage")} className="hidden" accept="image/*" />
                         {uploadingGarageImage ? <Loader2 className="w-6 h-6 text-primary animate-spin" /> : garageImageUrl ? <CheckCircle className="w-10 h-10 text-emerald-500" /> : <Store className="w-10 h-10 text-white/10 group-hover:text-primary transition-all mb-3" />}
-                        <p className={cn("text-[10px] font-black uppercase tracking-widest italic", garageImageUrl ? "text-emerald-500" : "text-white/20 group-hover:text-primary")}>{garageImageUrl ? "CAPTURED" : "STATION PIC"}</p>
+                        <p className={cn("text-[10px] font-black uppercase tracking-widest italic", garageImageUrl ? "text-emerald-500" : "text-white/20 group-hover:text-primary")}>{garageImageUrl ? "UPLOADED" : "GARAGE IMAGE"}</p>
                      </div>
                    </div>
 
@@ -468,7 +456,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                     disabled={loading || !govIdUrl || !garageImageUrl}
                     className="w-full h-24 bg-primary text-white rounded-[40px] font-black font-outfit uppercase italic tracking-[0.2em] shadow-2xl shadow-primary/40 text-xl hover:bg-primary/95 transition-all active:scale-[0.98]"
                    >
-                     {loading ? <Loader2 className="animate-spin" /> : "Engage Protocol"}
+                     {loading ? <Loader2 className="animate-spin" /> : "Complete Registration"}
                    </Button>
                 </motion.div>
               )}

@@ -35,7 +35,7 @@ export default function RoleSelectionPage() {
           </motion.div>
           
           <h1 className="text-6xl md:text-8xl font-black font-outfit uppercase italic tracking-tighter text-white leading-tight">
-            Select Your <span className="text-primary italic">Trajectory</span>
+            Select Your <span className="text-primary italic">Role</span>
           </h1>
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-white/40 font-medium italic">
             Join the world's most advanced emergency roadside ecosystem. <br/> Choose your mission parameters.
@@ -60,14 +60,14 @@ export default function RoleSelectionPage() {
                 </div>
                 
                 <div className="space-y-4 relative z-10">
-                  <h3 className="text-3xl font-black font-outfit uppercase italic tracking-tighter">Pilot (Customer)</h3>
+                  <h3 className="text-3xl font-black font-outfit uppercase italic tracking-tighter">Customer</h3>
                   <p className="text-white/40 font-medium text-sm leading-relaxed italic">
                     Stranded on the road? Deploy a distress beacon and sync with verified rescue nodes instantly.
                   </p>
                 </div>
                 
                 <div className="flex items-center gap-3 text-primary text-[10px] font-black uppercase tracking-[0.4em] italic pt-4">
-                  Initialize Link <ArrowRight className="w-4 h-4 group-hover:translate-x-3 transition-transform duration-500" />
+                  Sign Up <ArrowRight className="w-4 h-4 group-hover:translate-x-3 transition-transform duration-500" />
                 </div>
               </div>
             </Link>
@@ -90,14 +90,14 @@ export default function RoleSelectionPage() {
                 </div>
                 
                 <div className="space-y-4 relative z-10">
-                  <h3 className="text-3xl font-black font-outfit uppercase italic tracking-tighter">Ops Center (Owner)</h3>
+                  <h3 className="text-3xl font-black font-outfit uppercase italic tracking-tighter">Garage Owner</h3>
                   <p className="text-white/40 font-medium text-sm leading-relaxed italic">
                     Register your station. Accept missions. Scale your enterprise within the live grid.
                   </p>
                 </div>
                 
                 <div className="flex items-center gap-3 text-primary text-[10px] font-black uppercase tracking-[0.4em] italic pt-4">
-                  Command Desk <ArrowRight className="w-4 h-4 group-hover:translate-x-3 transition-transform duration-500" />
+                  Sign Up <ArrowRight className="w-4 h-4 group-hover:translate-x-3 transition-transform duration-500" />
                 </div>
               </div>
             </Link>
@@ -118,14 +118,14 @@ export default function RoleSelectionPage() {
               onClick={() => router.push("/")}
               className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors italic group"
              >
-                <ArrowLeft className="w-3 h-3 group-hover:-translate-x-2 transition-transform" /> Revert to Terminal
+                <ArrowLeft className="w-3 h-3 group-hover:-translate-x-2 transition-transform" /> Back to Home
              </button>
              <div className="w-px h-10 bg-white/5" />
              <Link 
               href="/login"
               className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-white transition-colors italic underline"
              >
-                Existing Node? Sign In
+                Already have an account? Sign In
              </Link>
           </div>
         </motion.div>
