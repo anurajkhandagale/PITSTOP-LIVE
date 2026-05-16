@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ export default function GarageProfilePage({ initialGarage }: GarageProfilePagePr
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [isGeocoding, setIsGeocoding] = useState(false);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
 
   // Form State
   const [name, setName] = useState(initialGarage?.name || "");
@@ -40,6 +41,23 @@ export default function GarageProfilePage({ initialGarage }: GarageProfilePagePr
   const [lng, setLng] = useState(initialGarage?.lng || 77.5946);
   const [garageImageUrl, setGarageImageUrl] = useState(initialGarage?.garageImageUrl || "");
   const [govIdUrl, setGovIdUrl] = useState(initialGarage?.govIdUrl || "");
+
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      if (address.trim().length > 3 && !isGeocoding) {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=5`);
+          const data = await res.json();
+          setSuggestions(data);
+        } catch (err) {
+          console.error("Suggestion fetch failed:", err);
+        }
+      } else {
+        setSuggestions([]);
+      }
+    }, 800);
+    return () => clearTimeout(timeout);
+  }, [address, isGeocoding]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,14 +164,48 @@ export default function GarageProfilePage({ initialGarage }: GarageProfilePagePr
                       <label className="text-sm font-medium text-muted-foreground flex items-center gap-2 font-mono uppercase tracking-widest"><Phone className="w-3 h-3" /> Phone Number</label>
                       <Input placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 relative z-50">
                       <label className="text-sm font-medium text-muted-foreground flex items-center gap-2 font-mono uppercase tracking-widest"><MapPin className="w-3 h-3" /> Address</label>
-                      <div className="flex gap-2">
-                        <Input placeholder="123, MG Road, Bangalore" value={address} onChange={(e) => setAddress(e.target.value)} className="flex-1" />
+                      <div className="flex gap-2 relative">
+                        <Input 
+                          placeholder="123, MG Road, Bangalore" 
+                          value={address} 
+                          onChange={(e) => setAddress(e.target.value)} 
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              setSuggestions([]);
+                              handleGeocode();
+                            }
+                          }}
+                          className="flex-1" 
+                        />
+                        {suggestions.length > 0 && (
+                           <div className="absolute top-full left-0 right-0 mt-2 bg-[#080808] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                             {suggestions.map((s, i) => (
+                               <button 
+                                 key={i}
+                                 type="button"
+                                 onClick={() => {
+                                   setAddress(s.display_name);
+                                   setSuggestions([]);
+                                   setLat(parseFloat(s.lat));
+                                   setLng(parseFloat(s.lon));
+                                 }}
+                                 className="w-full text-left px-4 py-3 text-xs text-white/80 hover:bg-white/10 border-b border-white/5 last:border-0 truncate font-inter lowercase first-letter:uppercase"
+                               >
+                                 {s.display_name}
+                               </button>
+                             ))}
+                           </div>
+                         )}
                         <Button 
                           type="button" 
                           variant="secondary"
-                          onClick={handleGeocode} 
+                          onClick={() => {
+                            setSuggestions([]);
+                            handleGeocode();
+                          }} 
                           disabled={isGeocoding}
                           className="px-4"
                         >

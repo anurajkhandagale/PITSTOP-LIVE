@@ -63,6 +63,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
   const [success, setSuccess] = useState("");
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
 
   const [garageName, setGarageName] = useState("");
   const [services, setServices] = useState("");
@@ -89,6 +90,23 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
   useEffect(() => {
     setCaptchaCode(Math.floor(100000 + Math.random() * 900000).toString());
   }, [mode]);
+
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      if (address.trim().length > 3 && !isGeocoding && step === "garage_info") {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=5`);
+          const data = await res.json();
+          setSuggestions(data);
+        } catch (err) {
+          console.error("Suggestion fetch failed:", err);
+        }
+      } else {
+        setSuggestions([]);
+      }
+    }, 800);
+    return () => clearTimeout(timeout);
+  }, [address, isGeocoding, step]);
 
   const resetState = () => {
     setError("");
@@ -449,13 +467,47 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                         </div>
                       </div>
                       
-                      <div className="space-y-2">
+                      <div className="space-y-2 relative z-50">
                         <label className="text-[10px] font-black text-white/30 uppercase tracking-widest pl-1">Address</label>
-                        <div className="flex gap-2">
-                          <Input placeholder="123, MG Road, Bangalore" value={address} onChange={(e) => setAddress(e.target.value)} className="h-16 flex-1 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest" required />
+                        <div className="flex gap-2 relative">
+                          <Input 
+                            placeholder="123, MG Road, Bangalore" 
+                            value={address} 
+                            onChange={(e) => setAddress(e.target.value)} 
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                setSuggestions([]);
+                                handleGeocode();
+                              }
+                            }}
+                            className="h-16 flex-1 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest text-[11px]" 
+                            required 
+                          />
+                          {suggestions.length > 0 && (
+                             <div className="absolute top-full left-0 right-0 mt-2 bg-[#080808] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                               {suggestions.map((s, i) => (
+                                 <button 
+                                   key={i}
+                                   type="button"
+                                   onClick={() => {
+                                     setAddress(s.display_name);
+                                     setSuggestions([]);
+                                     setLocation({ lat: parseFloat(s.lat), lng: parseFloat(s.lon) });
+                                   }}
+                                   className="w-full text-left px-4 py-3 text-[11px] text-white/80 hover:bg-white/10 border-b border-white/5 last:border-0 truncate font-inter lowercase first-letter:uppercase"
+                                 >
+                                   {s.display_name}
+                                 </button>
+                               ))}
+                             </div>
+                           )}
                           <Button 
                             type="button" 
-                            onClick={handleGeocode} 
+                            onClick={() => {
+                              setSuggestions([]);
+                              handleGeocode();
+                            }} 
                             disabled={isGeocoding}
                             className="h-16 px-6 bg-white/5 hover:bg-white/10 text-white border border-white/5 rounded-2xl transition-all"
                           >
