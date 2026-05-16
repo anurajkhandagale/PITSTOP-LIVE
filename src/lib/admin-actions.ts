@@ -6,6 +6,7 @@ import { garagesTable } from "@/db/schema/garages";
 import { serviceRequestsTable } from "@/db/schema/requests";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
+import bcrypt from "bcryptjs";
 
 async function checkAdminAuth() {
   const session = await auth();
@@ -62,5 +63,51 @@ export async function purgeUnverifiedUsersAction() {
   } catch (error) {
     console.error("Failed to purge users:", error);
     return { error: "Failed to purge users" };
+  }
+}
+
+export async function addAdminAction(data: { currentEmail: string; currentPassword: string; newName: string; newEmail: string; newPassword: string }) {
+  await checkAdminAuth();
+  const session = await auth();
+  
+  if (!session?.user?.email) {
+    return { error: "Session invalid" };
+  }
+
+  // Verify it's actually the current admin's email
+  if (session.user.email !== data.currentEmail) {
+    return { error: "Current email does not match the active session" };
+  }
+
+  try {
+    // 1. Fetch current admin to verify password
+    const currentAdminRows = await (db as any).select().from(usersTable).where(eq(usersTable.email as any, data.currentEmail)).limit(1);
+    const currentAdmin = currentAdminRows[0];
+    
+    if (!currentAdmin) return { error: "Current admin account not found" };
+
+    const isValid = await bcrypt.compare(data.currentPassword, currentAdmin.passwordHash);
+    if (!isValid) return { error: "Invalid current password. Cannot authorize." };
+
+    // 2. Check if new email is already taken
+    const existingRows = await (db as any).select().from(usersTable).where(eq(usersTable.email as any, data.newEmail)).limit(1);
+    if (existingRows.length > 0) {
+      return { error: "An account with the new admin's email already exists." };
+    }
+
+    // 3. Create new admin
+    const passwordHash = await bcrypt.hash(data.newPassword, 10);
+    await (db as any).insert(usersTable).values({
+      name: data.newName,
+      email: data.newEmail,
+      passwordHash,
+      role: "admin",
+      emailVerified: true,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to add new admin:", error);
+    return { error: "System error while adding new admin." };
   }
 }

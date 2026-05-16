@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, ShieldCheck, Key, Database } from "lucide-react";
+import { Settings, ShieldCheck, Key, Database, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AddAdminForm } from "@/components/admin/add-admin-form";
 
 export default async function AdminSettingsPage() {
   const session = await auth();
@@ -33,6 +34,17 @@ export default async function AdminSettingsPage() {
             <Button className="w-full h-12 bg-white/5 hover:bg-white/10 text-white font-bold transition-all">
               <Key className="w-4 h-4 mr-2" /> Change Master Password
             </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-white/5 bg-white/[0.02]">
+          <CardHeader className="border-b border-white/5 bg-white/[0.01]">
+            <CardTitle className="text-lg flex items-center gap-2 font-outfit italic uppercase">
+              <UserPlus className="w-5 h-5 text-red-500" /> Add Administrator
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <AddAdminForm currentEmail={session?.user?.email || ""} />
           </CardContent>
         </Card>
 

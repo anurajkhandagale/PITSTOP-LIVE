@@ -104,7 +104,7 @@ export default function AccountProfilePage() {
                       <Loader2 className="w-6 h-6 text-primary animate-spin" />
                     ) : profileImageUrl ? (
                       <>
-                        <img src={profileImageUrl} className="w-full h-full object-cover" />
+                        <img src={profileImageUrl} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "https://ui-avatars.com/api/?name=User&background=random"; }} />
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                           <Upload className="w-6 h-6 text-white" />
                         </div>
