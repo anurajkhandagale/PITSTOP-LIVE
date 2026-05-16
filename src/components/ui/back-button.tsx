@@ -10,7 +10,7 @@ export function UniversalBackButton() {
   const pathname = usePathname();
 
   // Hide on home page and dashboard roots maybe
-  const isHidden = pathname === "/" || pathname === "/user/dashboard" || pathname === "/owner/dashboard";
+  const isHidden = pathname === "/" || pathname === "/user/dashboard" || pathname === "/owner/dashboard" || pathname?.startsWith("/admin");
 
   if (isHidden) return null;
 

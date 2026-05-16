@@ -23,6 +23,8 @@ export function Navbar({ session: serverSession }: { session?: any }) {
     { name: "About", href: "/about" },
   ];
 
+  if (pathname?.startsWith("/admin")) return null;
+
   return (
     <nav className="fixed top-0 w-full z-[100] border-b border-white/5 bg-background/60 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

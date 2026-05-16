@@ -4,8 +4,11 @@ import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "./button";
 
+import { usePathname } from "next/navigation";
+
 export function ThemeToggle() {
   const [isLight, setIsLight] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     // Check local storage for theme preference
@@ -46,6 +49,8 @@ export function ThemeToggle() {
       document.head.appendChild(style);
     }
   };
+
+  if (pathname?.startsWith("/admin")) return null;
 
   return (
     <Button
