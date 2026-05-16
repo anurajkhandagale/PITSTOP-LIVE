@@ -39,6 +39,7 @@ import {
   uploadFileAction
 } from "@/lib/actions";
 import dynamic from "next/dynamic";
+import { SafeImage } from "@/components/ui/safe-image";
 
 const RegistrationMap = dynamic<any>(() => import("@/components/map/registration-map"), { 
   ssr: false,

@@ -5,10 +5,10 @@ import { createReadStream } from "fs";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { filename: string } }
+  { params }: { params: Promise<{ filename: string }> }
 ) {
   try {
-    const filename = params.filename;
+    const filename = (await params).filename;
     // We store uploads in public/uploads during uploadFileAction
     const filePath = path.resolve(process.cwd(), "public", "uploads", filename);
 

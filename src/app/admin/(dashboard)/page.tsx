@@ -106,7 +106,7 @@ export default async function AdminDashboardOverview() {
                   </div>
                   <div className="flex justify-between items-center text-[10px] text-muted-foreground font-medium border-t border-white/5 pt-2 mt-1">
                     <span>Garage ID: {r.garageId}</span>
-                    <FormattedDate date={r.createdAt} type="datetime" />
+                    <FormattedDate date={r.createdAt} type="both" />
                   </div>
                 </div>
               ))}
