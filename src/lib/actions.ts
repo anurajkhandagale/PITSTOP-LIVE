@@ -196,3 +196,24 @@ export async function resetPasswordAction(values: any) {
     return { error: "Failed to reset password" };
   }
 }
+
+export async function updateUserAction(data: { name: string; newPassword?: string }) {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "Unauthorized" };
+
+  try {
+    const updates: any = { name: data.name };
+    if (data.newPassword && data.newPassword.trim().length >= 6) {
+      updates.passwordHash = await bcrypt.hash(data.newPassword, 10);
+    }
+    
+    await (db as any).update(usersTable)
+      .set(updates)
+      .where(eq(usersTable.id as any, parseInt(session.user.id)));
+
+    return { success: true };
+  } catch (error) {
+    console.error("Profile update error:", error);
+    return { error: "Failed to update profile" };
+  }
+}
