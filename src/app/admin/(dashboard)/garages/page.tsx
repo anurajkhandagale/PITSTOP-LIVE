@@ -54,7 +54,7 @@ export default async function AdminGaragesPage() {
               <tr>
                 <th className="p-4">Garage Detail</th>
                 <th className="p-4">Owner Contact</th>
-                <th className="p-4">Verification</th>
+                <th className="p-4">Media & Docs</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -76,20 +76,27 @@ export default async function AdminGaragesPage() {
                     <p className="font-medium text-white">{garage.ownerName}</p>
                     <p className="text-xs text-white/50">{garage.phone}</p>
                   </td>
-                  <td className="p-4">
-                    {garage.govIdUrl ? (
-                      <div className="space-y-1">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                          <CheckCircle className="w-3 h-3" /> Verified
+                  <td className="p-4 space-y-2">
+                    <div>
+                      {garage.govIdUrl ? (
+                        <div className="space-y-1">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                            <CheckCircle className="w-3 h-3" /> Verified
+                          </span>
+                          <a href={garage.govIdUrl} target="_blank" rel="noreferrer" className="block text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1 font-bold">
+                            View ID <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/10 text-white/50 border border-white/10">
+                          Pending
                         </span>
-                        <a href={garage.govIdUrl} target="_blank" rel="noreferrer" className="block text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1 font-bold">
-                          View Document <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </div>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/10 text-white/50 border border-white/10">
-                        Pending
-                      </span>
+                      )}
+                    </div>
+                    {garage.garageImageUrl && (
+                      <a href={garage.garageImageUrl} target="_blank" rel="noreferrer" className="block text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1 font-bold">
+                        View Image <ExternalLink className="w-3 h-3" />
+                      </a>
                     )}
                   </td>
                   <td className="p-4 text-right">
