@@ -46,7 +46,7 @@ export default function GarageProfilePage({ initialGarage }: GarageProfilePagePr
     const timeout = setTimeout(async () => {
       if (address.trim().length > 3 && !isGeocoding) {
         try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=5`);
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=5&countrycodes=in`);
           const data = await res.json();
           setSuggestions(data);
         } catch (err) {
@@ -87,7 +87,7 @@ export default function GarageProfilePage({ initialGarage }: GarageProfilePagePr
     setError("");
     setSuccess(false);
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=in`);
       const data = await res.json();
       if (data && data.length > 0) {
         setLat(parseFloat(data[0].lat));

@@ -92,7 +92,8 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
     const timeout = setTimeout(async () => {
       if (searchAddress.trim().length > 3 && !isSearching) {
         try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&limit=5`);
+          const viewbox = userLocation ? `&viewbox=${userLocation.lng-1},${userLocation.lat+1},${userLocation.lng+1},${userLocation.lat-1}` : '';
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&limit=5&countrycodes=in${viewbox}`);
           const data = await res.json();
           setSuggestions(data);
         } catch (err) {
@@ -140,7 +141,8 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
     if (!searchAddress) return;
     setIsSearching(true);
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}`);
+      const viewbox = userLocation ? `&viewbox=${userLocation.lng-1},${userLocation.lat+1},${userLocation.lng+1},${userLocation.lat-1}` : '';
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&countrycodes=in${viewbox}`);
       const data = await res.json();
       if (data && data.length > 0) {
         setUserLocation({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });

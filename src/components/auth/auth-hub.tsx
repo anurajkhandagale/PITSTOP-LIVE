@@ -95,7 +95,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
     const timeout = setTimeout(async () => {
       if (address.trim().length > 3 && !isGeocoding && step === "garage_info") {
         try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=5`);
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=5&countrycodes=in`);
           const data = await res.json();
           setSuggestions(data);
         } catch (err) {
@@ -153,7 +153,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
     setIsGeocoding(true);
     setError("");
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=in`);
       const data = await res.json();
       if (data && data.length > 0) {
         setLocation({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
