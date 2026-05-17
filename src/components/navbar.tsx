@@ -71,16 +71,16 @@ export function Navbar({ session: serverSession }: { session?: any }) {
                   <Link href="/dashboard">
                     <Button variant="ghost" size="sm" className="font-bold uppercase tracking-[0.2em] text-[10px] text-primary italic">Live Dashboard</Button>
                   </Link>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-white/10 font-black uppercase tracking-[0.2em] text-[9px] hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 italic px-4"
-                    onClick={async () => {
-                      await logoutAction();
-                    }}
-                  >
-                    Disconnect Node
-                  </Button>
+                  <form action={logoutAction}>
+                    <Button 
+                      type="submit"
+                      variant="outline" 
+                      size="sm" 
+                      className="border-white/10 font-black uppercase tracking-[0.2em] text-[9px] hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 italic px-4"
+                    >
+                      Disconnect Node
+                    </Button>
+                  </form>
                 </>
               ) : (
                 <>
@@ -140,15 +140,15 @@ export function Navbar({ session: serverSession }: { session?: any }) {
                   <Link href="/dashboard" onClick={() => setIsOpen(false)} className="block">
                     <Button variant="outline" className="w-full h-14 rounded-2xl font-bold uppercase tracking-widest border-white/10">Dashboard</Button>
                   </Link>
-                  <Button 
-                    variant="ghost" 
-                    className="w-full h-14 font-bold uppercase tracking-widest text-red-500"
-                    onClick={async () => {
-                      await logoutAction();
-                    }}
-                  >
-                    Logout
-                  </Button>
+                  <form action={logoutAction} className="w-full">
+                    <Button 
+                      type="submit"
+                      variant="ghost" 
+                      className="w-full h-14 font-bold uppercase tracking-widest text-red-500"
+                    >
+                      Logout
+                    </Button>
+                  </form>
                 </>
               ) : (
                 <>
