@@ -273,7 +273,7 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
                             "w-14 h-14 rounded-[20px] overflow-hidden flex-shrink-0 border flex items-center justify-center transition-all relative",
                             selectedGarageId === garage.id ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/5"
                           )}>
-                              <SafeImage src={garage.garageImageUrl || "https://images.unsplash.com/photo-1613214149922-f1809c99b414?auto=format&fit=crop&w=200&q=80"} alt={garage.name} className="w-full h-full object-cover" />
+                              <SafeImage src={garage.garageImageUrl || "https://images.unsplash.com/photo-1613214149922-f1809c99b414?auto=format&fit=crop&w=200&q=80"} fallbackSrc="https://images.unsplash.com/photo-1613214149922-f1809c99b414?auto=format&fit=crop&w=200&q=80" alt={garage.name} className="w-full h-full object-cover" />
                           </div>
                           <div className="min-w-0 space-y-1">
                             <div className="flex items-center gap-2">
@@ -455,11 +455,12 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
                   <div className="absolute inset-0 bg-[#0a0a0a] overflow-hidden flex items-center justify-end md:justify-center px-10">
                      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-background to-background z-10 pointer-events-none" />
                      <div className="absolute inset-0 z-0">
-                       <SafeImage 
-                         src={selectedGarage.garageImageUrl || "https://images.unsplash.com/photo-1613214149922-f1809c99b414?auto=format&fit=crop&w=1920&q=80"} 
-                         alt={selectedGarage.name} 
-                         className="w-full h-full object-cover opacity-50" 
-                       />
+                         <SafeImage 
+                           src={selectedGarage.garageImageUrl || "https://images.unsplash.com/photo-1613214149922-f1809c99b414?auto=format&fit=crop&w=1920&q=80"} 
+                           fallbackSrc="https://images.unsplash.com/photo-1613214149922-f1809c99b414?auto=format&fit=crop&w=1920&q=80"
+                           alt={selectedGarage.name} 
+                           className="w-full h-full object-cover opacity-50" 
+                         />
                        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
                      </div>
                   </div>
