@@ -15,6 +15,31 @@ export default async function AdminDashboardOverview() {
     (db as any).select().from(serviceRequestsTable)
   ]);
 
+  // Dynamic Activity Logic
+  const now = new Date();
+  const last14Days = Array.from({ length: 14 }).map((_, i) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() - (13 - i));
+    return { date: d.toISOString().split('T')[0], count: 0 };
+  });
+
+  const countActivity = (items: any[]) => {
+    items.forEach(item => {
+      if (!item.createdAt) return;
+      const dateStr = new Date(item.createdAt).toISOString().split('T')[0];
+      const dayIndex = last14Days.findIndex(d => d.date === dateStr);
+      if (dayIndex !== -1) {
+        last14Days[dayIndex].count++;
+      }
+    });
+  };
+
+  countActivity(users);
+  countActivity(garages);
+  countActivity(requests);
+
+  const maxActivity = Math.max(...last14Days.map(d => d.count), 1);
+
   return (
     <div className="space-y-12">
       <div className="space-y-2">
@@ -72,10 +97,13 @@ export default async function AdminDashboardOverview() {
           </CardHeader>
           <CardContent className="p-8">
             <div className="flex h-64 items-end gap-2">
-              {Array.from({ length: 14 }).map((_, i) => {
-                const height = Math.floor(Math.random() * 80) + 20;
+              {last14Days.map((day, i) => {
+                const height = Math.max((day.count / maxActivity) * 100, 5); // min 5% height
                 return (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                  <div key={i} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end relative">
+                    <div className="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 border border-white/10 text-emerald-400 text-[10px] px-3 py-1.5 rounded-lg font-black z-10 pointer-events-none whitespace-nowrap shadow-xl">
+                      {day.count} EVENTS
+                    </div>
                     <div className="w-full bg-white/5 rounded-t-lg overflow-hidden relative flex flex-col justify-end h-full">
                       <div 
                         className="w-full bg-emerald-500/50 group-hover:bg-emerald-500 transition-all duration-500" 
