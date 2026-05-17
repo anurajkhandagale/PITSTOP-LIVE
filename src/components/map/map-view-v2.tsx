@@ -110,7 +110,8 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
     async function loadGarages() {
       if (!userLocation) return;
       setIsLoading(true);
-      const data = await listGaragesAction(userLocation.lat, userLocation.lng);
+      // Explicitly enforce maximum 10km radius
+      const data = await listGaragesAction(userLocation.lat, userLocation.lng, 10);
       setGarages(data);
       setIsLoading(false);
     }
@@ -269,10 +270,14 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex gap-4 min-w-0">
                           <div className={cn(
-                            "w-14 h-14 rounded-[20px] overflow-hidden flex-shrink-0 border flex items-center justify-center transition-all",
+                            "w-14 h-14 rounded-[20px] overflow-hidden flex-shrink-0 border flex items-center justify-center transition-all relative",
                             selectedGarageId === garage.id ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/5"
                           )}>
-                            <Store className={cn("w-6 h-6", selectedGarageId === garage.id ? "text-primary" : "text-white/40")} />
+                            {garage.garageImageUrl ? (
+                              <SafeImage src={garage.garageImageUrl} alt={garage.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <Store className={cn("w-6 h-6 relative z-10", selectedGarageId === garage.id ? "text-primary" : "text-white/40")} />
+                            )}
                           </div>
                           <div className="min-w-0 space-y-1">
                             <div className="flex items-center gap-2">
@@ -452,8 +457,15 @@ export function MapViewV2({ session: propSession }: { session?: Session | null }
               <div className="flex-1 overflow-y-auto scrollbar-none">
                 <div className="relative h-64 md:h-80 w-full">
                   <div className="absolute inset-0 bg-[#0a0a0a] overflow-hidden flex items-center justify-end md:justify-center px-10">
-                     <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-background to-background" />
-                     <Store className="w-64 h-64 text-white/5 rotate-12 -mr-20 md:mr-0 scale-150 relative z-0" />
+                     <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-background to-background z-10 pointer-events-none" />
+                     {selectedGarage.garageImageUrl ? (
+                       <div className="absolute inset-0 z-0">
+                         <SafeImage src={selectedGarage.garageImageUrl} alt={selectedGarage.name} className="w-full h-full object-cover opacity-50" />
+                         <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
+                       </div>
+                     ) : (
+                       <Store className="w-64 h-64 text-white/5 rotate-12 -mr-20 md:mr-0 scale-150 relative z-0" />
+                     )}
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
                   <div className="absolute bottom-10 left-10 right-10 space-y-4">
