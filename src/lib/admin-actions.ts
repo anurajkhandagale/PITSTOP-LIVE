@@ -14,7 +14,7 @@ async function checkAdminAuth() {
   }
 }
 
-export async function deleteUserAction(id: number) {
+export async function deleteUserAction(id: number, formData?: FormData) {
   await checkAdminAuth();
   try {
     // Delete garages owned by the user
@@ -24,22 +24,18 @@ export async function deleteUserAction(id: number) {
     
     revalidatePath("/admin/users");
     revalidatePath("/admin/garages");
-    return { success: true };
   } catch (error) {
     console.error("Failed to delete user:", error);
-    return { error: "Failed to delete user" };
   }
 }
 
-export async function deleteGarageAction(id: number) {
+export async function deleteGarageAction(id: number, formData?: FormData) {
   await checkAdminAuth();
   try {
     await (db as any).delete(garagesTable).where(eq(garagesTable.id, id));
     revalidatePath("/admin/garages");
-    return { success: true };
   } catch (error) {
     console.error("Failed to delete garage:", error);
-    return { error: "Failed to delete garage" };
   }
 }
 
