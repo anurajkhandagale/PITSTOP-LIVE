@@ -7,6 +7,7 @@ import { Search, UserCog, MoreVertical, Trash2, ExternalLink, FileBadge } from "
 import { FormattedDate } from "@/components/ui/formatted-date";
 import { Button } from "@/components/ui/button";
 import { SafeImage } from "@/components/ui/safe-image";
+import { deleteUserAction } from "@/lib/admin-actions";
 
 export default async function AdminUsersPage() {
   const session = await auth();
@@ -86,9 +87,11 @@ export default async function AdminUsersPage() {
                     <FormattedDate date={user.createdAt} type="date" className="text-white/70" />
                   </td>
                   <td className="p-4 text-right">
-                    <Button variant="ghost" size="icon" className="text-white/40 hover:text-red-500 hover:bg-red-500/10">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <form action={deleteUserAction.bind(null, user.id)}>
+                      <Button type="submit" variant="ghost" size="icon" className="text-white/40 hover:text-red-500 hover:bg-red-500/10">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </form>
                   </td>
                 </tr>
               ))}

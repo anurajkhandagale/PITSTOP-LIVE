@@ -14,6 +14,7 @@ export const garagesTable = pgTable("garages", {
   lng: doublePrecision("lng").notNull(),
   garageImageUrl: text("garage_image_url"),
   govIdUrl: text("gov_id_url"),
+  tier: text("tier").notNull().default("silver"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -71,6 +71,8 @@ export async function listRequestsAction(status?: string) {
         updatedAt: serviceRequestsTable.updatedAt,
         userName: usersTable.name,
         garageName: garagesTable.name,
+        garageLat: garagesTable.lat,
+        garageLng: garagesTable.lng,
       })
       .from(serviceRequestsTable)
       .leftJoin(usersTable, eq(serviceRequestsTable.userId as any, usersTable.id))
@@ -90,6 +92,8 @@ export async function listRequestsAction(status?: string) {
         updatedAt: serviceRequestsTable.updatedAt,
         userName: usersTable.name,
         garageName: garagesTable.name,
+        garageLat: garagesTable.lat,
+        garageLng: garagesTable.lng,
       })
       .from(serviceRequestsTable)
       .leftJoin(usersTable, eq(serviceRequestsTable.userId as any, usersTable.id))

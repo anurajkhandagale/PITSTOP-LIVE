@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,11 @@ import Link from "next/link";
 import { createRatingAction } from "@/lib/ratings";
 import { FormattedDate } from "@/components/ui/formatted-date";
 
+const LiveTrackingMap = dynamic(() => import("@/components/map/live-tracking-map"), { 
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-white/5 animate-pulse flex items-center justify-center text-muted-foreground/30 font-black uppercase tracking-widest italic">Loading Tracking Interface...</div>
+});
+
 const STATUS_COLORS = {
   pending: "text-primary bg-primary/10 border-primary/20",
   accepted: "text-blue-400 bg-blue-400/10 border-blue-400/20",
@@ -50,6 +56,19 @@ export function UserDashboard({ initialRequests, stats, userName }: UserDashboar
   const [ratingComment, setRatingComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hoverStars, setHoverStars] = useState(0);
+
+  const [trackRequestId, setTrackRequestId] = useState<number | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  useEffect(() => {
+    if (trackRequestId) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => setUserLocation({ lat: 12.9716, lng: 77.5946 }),
+        { enableHighAccuracy: true }
+      );
+    }
+  }, [trackRequestId]);
 
   // Polling to detect if a garage owner has accepted the request
   useEffect(() => {
@@ -198,8 +217,13 @@ export function UserDashboard({ initialRequests, stats, userName }: UserDashboar
                                 <span className="text-[10px] font-black uppercase tracking-widest text-white/40 italic">Waiting for Acceptance</span>
                               </div>
                             )}
-                            {["pending", "accepted"].includes(req.status) && (
-                              <Button size="lg" variant="outline" className="w-16 h-16 rounded-[22px] border-white/10 bg-white/5 hover:bg-white/10 hidden md:flex items-center justify-center">
+                            {req.status === "accepted" && (
+                              <Button 
+                                size="lg" 
+                                variant="outline" 
+                                className="w-16 h-16 rounded-[22px] border-white/10 bg-white/5 hover:bg-white/10 hidden md:flex items-center justify-center"
+                                onClick={() => setTrackRequestId(req.id)}
+                              >
                                 <Navigation className="w-5 h-5 text-primary" />
                               </Button>
                             )}
@@ -270,6 +294,51 @@ export function UserDashboard({ initialRequests, stats, userName }: UserDashboar
           </Card>
         </div>
       </div>
+
+      {/* Tracking Modal */}
+      <AnimatePresence>
+        {trackRequestId && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-8">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={() => setTrackRequestId(null)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+            />
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-5xl h-[80vh] glass border border-white/20 rounded-[48px] shadow-2xl relative z-10 overflow-hidden flex flex-col"
+            >
+              <button 
+                className="absolute top-8 right-8 z-50 text-white/40 hover:text-white transition-all bg-black/40 backdrop-blur-md p-3 rounded-2xl border border-white/10"
+                onClick={() => setTrackRequestId(null)}
+              >
+                <X className="w-6 h-6" />
+              </button>
+              
+              <div className="flex-1 w-full h-full p-2">
+                {userLocation && initialRequests.find(r => r.id === trackRequestId)?.garageLat ? (
+                  <LiveTrackingMap 
+                    userLocation={userLocation}
+                    garageLocation={{
+                      lat: initialRequests.find(r => r.id === trackRequestId).garageLat,
+                      lng: initialRequests.find(r => r.id === trackRequestId).garageLng
+                    }}
+                  />
+                ) : (
+                  <div className="flex w-full h-full items-center justify-center text-primary font-black uppercase tracking-widest italic">
+                    <Loader2 className="animate-spin w-10 h-10 mr-4" /> Syncing Coordinates...
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Review Modal */}
       <AnimatePresence>

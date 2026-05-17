@@ -74,7 +74,10 @@ export function Navbar({ session: serverSession }: { session?: any }) {
                     variant="outline" 
                     size="sm" 
                     className="border-white/10 font-black uppercase tracking-[0.2em] text-[9px] hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 italic px-4"
-                    onClick={() => signOut({ callbackUrl: "/" })}
+                    onClick={async () => {
+                      await signOut({ redirect: false });
+                      window.location.href = "/";
+                    }}
                   >
                     Disconnect Node
                   </Button>
@@ -140,7 +143,10 @@ export function Navbar({ session: serverSession }: { session?: any }) {
                   <Button 
                     variant="ghost" 
                     className="w-full h-14 font-bold uppercase tracking-widest text-red-500"
-                    onClick={() => signOut({ callbackUrl: "/" })}
+                    onClick={async () => {
+                      await signOut({ redirect: false });
+                      window.location.href = "/";
+                    }}
                   >
                     Logout
                   </Button>

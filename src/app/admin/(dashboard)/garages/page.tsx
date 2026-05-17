@@ -7,6 +7,8 @@ import { Search, Store, MapPin, Trash2, CheckCircle, ExternalLink } from "lucide
 import { FormattedDate } from "@/components/ui/formatted-date";
 import { Button } from "@/components/ui/button";
 import { SafeImage } from "@/components/ui/safe-image";
+import { deleteGarageAction } from "@/lib/admin-actions";
+import { GarageTierSelector } from "./garage-tier-selector";
 
 export default async function AdminGaragesPage() {
   const session = await auth();
@@ -23,6 +25,7 @@ export default async function AdminGaragesPage() {
       ownerEmail: usersTable.email,
       govIdUrl: garagesTable.govIdUrl,
       garageImageUrl: garagesTable.garageImageUrl,
+      tier: garagesTable.tier,
     })
     .from(garagesTable)
     .leftJoin(usersTable, eq(garagesTable.ownerId, usersTable.id));
@@ -54,6 +57,7 @@ export default async function AdminGaragesPage() {
               <tr>
                 <th className="p-4">Garage Detail</th>
                 <th className="p-4">Owner Contact</th>
+                <th className="p-4">Tier</th>
                 <th className="p-4">Media & Docs</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
@@ -75,6 +79,9 @@ export default async function AdminGaragesPage() {
                   <td className="p-4">
                     <p className="font-medium text-white">{garage.ownerName}</p>
                     <p className="text-xs text-white/50">{garage.phone}</p>
+                  </td>
+                  <td className="p-4">
+                    <GarageTierSelector garageId={garage.id} currentTier={garage.tier || "silver"} />
                   </td>
                   <td className="p-4 space-y-2">
                     <div>
@@ -100,9 +107,11 @@ export default async function AdminGaragesPage() {
                     )}
                   </td>
                   <td className="p-4 text-right">
-                    <Button variant="ghost" size="icon" className="text-white/40 hover:text-red-500 hover:bg-red-500/10">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <form action={deleteGarageAction.bind(null, garage.id)}>
+                      <Button type="submit" variant="ghost" size="icon" className="text-white/40 hover:text-red-500 hover:bg-red-500/10">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </form>
                   </td>
                 </tr>
               ))}

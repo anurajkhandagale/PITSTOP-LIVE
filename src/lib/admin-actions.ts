@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { usersTable, garagesTable, serviceRequestsTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
+import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 
 async function checkAdminAuth() {
@@ -16,7 +17,13 @@ async function checkAdminAuth() {
 export async function deleteUserAction(id: number) {
   await checkAdminAuth();
   try {
+    // Delete garages owned by the user
+    await (db as any).delete(garagesTable).where(eq(garagesTable.ownerId, id));
+    // Then delete the user
     await (db as any).delete(usersTable).where(eq(usersTable.id, id));
+    
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/garages");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete user:", error);
@@ -28,10 +35,23 @@ export async function deleteGarageAction(id: number) {
   await checkAdminAuth();
   try {
     await (db as any).delete(garagesTable).where(eq(garagesTable.id, id));
+    revalidatePath("/admin/garages");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete garage:", error);
     return { error: "Failed to delete garage" };
+  }
+}
+
+export async function updateGarageTierAction(id: number, tier: string) {
+  await checkAdminAuth();
+  try {
+    await (db as any).update(garagesTable).set({ tier }).where(eq(garagesTable.id, id));
+    revalidatePath("/admin/garages");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update garage tier:", error);
+    return { error: "Failed to update garage tier" };
   }
 }
 
