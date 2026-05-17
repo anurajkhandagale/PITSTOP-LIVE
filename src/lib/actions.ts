@@ -169,6 +169,10 @@ export async function loginAction(formData: FormData) {
   }
 }
 
+export async function logoutAction() {
+  await signOut({ redirectTo: "/" });
+}
+
 export async function forgotPasswordAction(email: string) {
   try {
     const existing = await (db as any).select().from(usersTable).where(eq(usersTable.email as any, email)).limit(1);

@@ -6,8 +6,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Zap, Menu, X, ArrowRight } from "lucide-react";
 import { useState } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { logoutAction } from "@/lib/actions";
 
 export function Navbar({ session: serverSession }: { session?: any }) {
   const pathname = usePathname();
@@ -75,8 +76,7 @@ export function Navbar({ session: serverSession }: { session?: any }) {
                     size="sm" 
                     className="border-white/10 font-black uppercase tracking-[0.2em] text-[9px] hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 italic px-4"
                     onClick={async () => {
-                      await signOut({ redirect: false });
-                      window.location.href = "/";
+                      await logoutAction();
                     }}
                   >
                     Disconnect Node
@@ -144,8 +144,7 @@ export function Navbar({ session: serverSession }: { session?: any }) {
                     variant="ghost" 
                     className="w-full h-14 font-bold uppercase tracking-widest text-red-500"
                     onClick={async () => {
-                      await signOut({ redirect: false });
-                      window.location.href = "/";
+                      await logoutAction();
                     }}
                   >
                     Logout
