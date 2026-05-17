@@ -5,7 +5,7 @@ import { usersTable } from "@/db/schema/users";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { createAndSendOtp, verifyOtp } from "@/lib/otp";
-import { signIn, auth } from "@/auth";
+import { signIn, signOut, auth } from "@/auth";
 import { AuthError } from "next-auth";
 import { z } from "zod";
 import fs from "fs/promises";
