@@ -122,7 +122,7 @@ export default function LiveTrackingMap({
       {/* ETA Overlay */}
       <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[1000] glass px-8 py-4 rounded-[24px] border-white/10 shadow-2xl flex items-center gap-4">
         <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500 animate-pulse">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500 animate-pulse">
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
