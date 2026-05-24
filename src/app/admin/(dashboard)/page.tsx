@@ -4,6 +4,7 @@ import { usersTable, garagesTable, serviceRequestsTable } from "@/db/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Store, AlertTriangle, Activity } from "lucide-react";
 import { FormattedDate } from "@/components/ui/formatted-date";
+import { ActivityGraph, DayActivity } from "@/components/admin/activity-graph";
 
 export default async function AdminDashboardOverview() {
   const session = await auth();
@@ -17,26 +18,32 @@ export default async function AdminDashboardOverview() {
 
   // Dynamic Activity Logic
   const now = new Date();
-  const last14Days = Array.from({ length: 14 }).map((_, i) => {
+  const last14Days: DayActivity[] = Array.from({ length: 14 }).map((_, i) => {
     const d = new Date(now);
     d.setDate(d.getDate() - (13 - i));
-    return { date: d.toISOString().split('T')[0], count: 0 };
+    return { date: d.toISOString().split('T')[0], count: 0, events: [] };
   });
 
-  const countActivity = (items: any[]) => {
+  const countActivity = (items: any[], type: "User" | "Garage" | "SOS", titleField: string) => {
     items.forEach(item => {
       if (!item.createdAt) return;
-      const dateStr = new Date(item.createdAt).toISOString().split('T')[0];
+      const dateObj = new Date(item.createdAt);
+      const dateStr = dateObj.toISOString().split('T')[0];
       const dayIndex = last14Days.findIndex(d => d.date === dateStr);
       if (dayIndex !== -1) {
         last14Days[dayIndex].count++;
+        last14Days[dayIndex].events.push({
+          type,
+          title: item[titleField] || "Unknown",
+          time: dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        });
       }
     });
   };
 
-  countActivity(users);
-  countActivity(garages);
-  countActivity(requests);
+  countActivity(users, "User", "name");
+  countActivity(garages, "Garage", "name");
+  countActivity(requests, "SOS", "vehicleType");
 
   const maxActivity = Math.max(...last14Days.map(d => d.count), 1);
 
@@ -89,34 +96,7 @@ export default async function AdminDashboardOverview() {
         </div>
 
         {/* Live Analytics Dashboard */}
-        <Card className="border-white/5 bg-white/[0.02] overflow-hidden">
-          <CardHeader className="border-b border-white/5 bg-white/[0.01]">
-            <CardTitle className="text-lg flex items-center gap-2 font-outfit italic uppercase">
-              <Activity className="w-5 h-5 text-emerald-500" /> Platform Growth Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-8">
-            <div className="flex h-64 items-end gap-2">
-              {last14Days.map((day, i) => {
-                const height = Math.max((day.count / maxActivity) * 100, 5); // min 5% height
-                return (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end relative">
-                    <div className="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 border border-white/10 text-emerald-400 text-[10px] px-3 py-1.5 rounded-lg font-black z-10 pointer-events-none whitespace-nowrap shadow-xl">
-                      {day.count} EVENTS
-                    </div>
-                    <div className="w-full bg-white/5 rounded-t-lg overflow-hidden relative flex flex-col justify-end h-full">
-                      <div 
-                        className="w-full bg-emerald-500/50 group-hover:bg-emerald-500 transition-all duration-500" 
-                        style={{ height: `${height}%` }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-white/30 uppercase font-black tracking-widest hidden md:block">Day {i+1}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+        <ActivityGraph data={last14Days} maxActivity={maxActivity} />
 
         {/* Tables */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
