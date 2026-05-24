@@ -5,6 +5,8 @@ import { usersTable } from "@/db/schema/users";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { createAndSendOtp, verifyOtp } from "@/lib/otp";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { signIn, signOut, auth } from "@/auth";
 import { AuthError } from "next-auth";
 import { z } from "zod";
@@ -169,7 +171,24 @@ export async function loginAction(formData: FormData) {
 }
 
 export async function logoutAction() {
-  await signOut({ redirectTo: "/" });
+  // Try to use NextAuth signOut but prevent it from forcing an absolute redirect
+  // which causes the localhost bug on Render when AUTH_URL is missing
+  try {
+    await signOut({ redirect: false });
+  } catch (err) {
+    // Ignore any thrown redirects from NextAuth
+  }
+  
+  // Manually clear cookies just in case NextAuth fails
+  const cookieStore = cookies();
+  cookieStore.getAll().forEach((c) => {
+    if (c.name.includes("authjs") || c.name.includes("next-auth")) {
+      cookieStore.delete(c.name);
+    }
+  });
+
+  // Force a purely relative Next.js redirect to home
+  redirect("/");
 }
 
 export async function forgotPasswordAction(email: string) {
