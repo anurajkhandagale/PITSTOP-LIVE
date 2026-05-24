@@ -14,7 +14,6 @@ import {
   XCircle, 
   Plus, 
   Navigation,
-  MapPinned,
   Car,
   AlertTriangle,
   ShieldCheck,
@@ -225,7 +224,7 @@ export function UserDashboard({ initialRequests, stats, userName }: UserDashboar
                                       variant="outline" 
                                       className="w-full md:w-16 h-16 rounded-[22px] border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all group/nav relative"
                                     >
-                                      <MapPinned className="w-5 h-5 text-primary md:mr-0 mr-3 group-hover:scale-110 transition-transform" />
+                                      <MapPin className="w-5 h-5 text-primary md:mr-0 mr-3 group-hover:scale-110 transition-transform" />
                                       <span className="md:hidden font-black uppercase italic tracking-widest text-[11px] text-white">Live Directions</span>
                                       <div className="hidden md:block absolute -top-10 bg-black/80 text-[10px] uppercase font-black px-3 py-1.5 rounded-lg border border-white/10 opacity-0 group-hover/nav:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
                                         Live Directions
