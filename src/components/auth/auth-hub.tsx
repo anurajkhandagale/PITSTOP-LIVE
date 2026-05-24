@@ -58,7 +58,8 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
-  const [captchaCode, setCaptchaCode] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -92,7 +93,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
   }, [searchParams]);
 
   useEffect(() => {
-    setCaptchaCode(Math.floor(100000 + Math.random() * 900000).toString());
+    // Mode changed, reset state
   }, [mode]);
 
   useEffect(() => {
@@ -117,7 +118,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
     setSuccess("");
     setStep("details");
     setOtp("");
-    setCaptchaCode(Math.floor(100000 + Math.random() * 900000).toString());
+    setOtpSent(false);
   };
 
   const handleModeChange = (newMode: "login" | "register" | "forgot") => {
@@ -174,12 +175,30 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
     }
   };
 
+  const handleSendOtp = async () => {
+    if (!email || !email.includes("@")) {
+      setError("Please enter a valid email address first.");
+      return;
+    }
+    setSendingOtp(true);
+    setError("");
+    setSuccess("");
+    const res = await sendOtpAction(email, mode as any);
+    setSendingOtp(false);
+    if (res.error) {
+      setError(res.error);
+    } else {
+      setOtpSent(true);
+      setSuccess("OTP has been sent to your email!");
+    }
+  };
+
   const handleAction = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (otp !== captchaCode) {
-      setError("Invalid Captcha Code");
-      setCaptchaCode(Math.floor(100000 + Math.random() * 900000).toString());
-      setOtp("");
+
+    // If it's register or forgot, they MUST verify email first
+    if (mode !== "login" && !otpSent) {
+      setError("Please click 'SEND OTP CODE' and verify your email first.");
       return;
     }
 
@@ -187,6 +206,15 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
     setError("");
     
     try {
+      // 1. Verify OTP first if not login
+      if (mode !== "login") {
+        const otpVerification = await verifyOtpAction(email, otp, mode as any);
+        if (!otpVerification.success) {
+          setError("Invalid or expired OTP code.");
+          setLoading(false);
+          return;
+        }
+      }
       if (mode === "login") {
         const formData = new FormData();
         formData.append("email", email);
@@ -234,7 +262,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
       setMode("login");
       setStep("details");
       setPassword("");
-      setCaptchaCode(Math.floor(100000 + Math.random() * 900000).toString());
+      setOtpSent(false);
       setOtp("");
     } else {
       setError(res.error || "Reset failed");
@@ -255,7 +283,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
       setMode("login");
       setStep("details");
       setOtp("");
-      setCaptchaCode(Math.floor(100000 + Math.random() * 900000).toString());
+      setOtpSent(false);
       setSuccess("Registration successful! Please login.");
     }
   };
@@ -434,24 +462,33 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                       </div>
                     )}
 
-                    {/* Captcha Section */}
-                    <div className="space-y-2 relative">
-                       <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Security Captcha</label>
-                       <div className="flex gap-4">
-                         <div className="w-28 flex-shrink-0 h-16 bg-primary/10 rounded-2xl border border-primary/20 flex items-center justify-center select-none relative overflow-hidden">
-                           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-50 pointer-events-none" />
-                           <span className="text-xl font-black tracking-[0.3em] text-primary font-outfit italic relative z-10 pl-1">{captchaCode}</span>
+                    {/* OTP Section (Only for Register/Forgot) */}
+                    {mode !== "login" && (
+                      <div className="space-y-2 relative">
+                         <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Email Verification</label>
+                         <div className="flex gap-4">
+                           {!otpSent ? (
+                             <Button 
+                               type="button" 
+                               onClick={handleSendOtp}
+                               disabled={sendingOtp}
+                               className="w-full h-16 rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-white font-bold tracking-[0.2em] transition-all"
+                             >
+                               {sendingOtp ? <Loader2 className="animate-spin" /> : "SEND OTP CODE"}
+                             </Button>
+                           ) : (
+                             <Input 
+                               placeholder="ENTER 6-DIGIT OTP" 
+                               value={otp} 
+                               onChange={(e) => setOtp(e.target.value)} 
+                               maxLength={6}
+                               className="w-full h-16 rounded-2xl bg-white/[0.03] border-white/5 text-center text-white font-bold tracking-[0.3em] transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50" 
+                               required 
+                             />
+                           )}
                          </div>
-                         <Input 
-                           placeholder="CODE" 
-                           value={otp} 
-                           onChange={(e) => setOtp(e.target.value)} 
-                           maxLength={6}
-                           className="flex-1 h-16 rounded-2xl bg-white/[0.03] border-white/5 text-center text-white font-bold tracking-[0.3em] transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 min-w-0" 
-                           required 
-                         />
-                       </div>
-                    </div>
+                      </div>
+                    )}
                   </div>
                   
                   <Button type="submit" disabled={loading} className="w-full h-20 text-sm font-black font-outfit uppercase italic tracking-[0.2em] text-white bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/20 rounded-3xl mt-4 group">

@@ -28,7 +28,7 @@ const RegisterSchema = z.object({
 
 import { garagesTable } from "@/db/schema/garages";
 
-export async function sendOtpAction(email: string, purpose: "register" | "login") {
+export async function sendOtpAction(email: string, purpose: "register" | "login" | "forgot") {
   try {
     const otpRes = await createAndSendOtp(email, purpose);
     // In dev, we return the OTP for quick access as requested
