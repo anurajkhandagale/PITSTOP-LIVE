@@ -469,9 +469,20 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                                type="button" 
                                onClick={handleSendOtp}
                                disabled={sendingOtp}
-                               className="w-full h-16 rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-white font-bold tracking-[0.2em] transition-all"
+                               className="w-full h-16 rounded-2xl bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary font-black tracking-[0.3em] uppercase italic transition-all duration-300 hover:shadow-[0_0_30px_rgba(251,26,26,0.2)] group overflow-hidden relative"
                              >
-                               {sendingOtp ? <Loader2 className="animate-spin" /> : "SEND OTP CODE"}
+                               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+                               {sendingOtp ? (
+                                 <div className="flex items-center gap-3 relative z-10">
+                                   <Loader2 className="w-5 h-5 animate-spin" />
+                                   <span>TRANSMITTING...</span>
+                                 </div>
+                               ) : (
+                                 <div className="flex items-center gap-3 relative z-10">
+                                   <Zap className="w-5 h-5" />
+                                   <span>SEND OTP CODE</span>
+                                 </div>
+                               )}
                              </Button>
                            ) : (
                              <Input 
@@ -479,7 +490,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                                value={otp} 
                                onChange={(e) => setOtp(e.target.value)} 
                                maxLength={6}
-                               className="w-full h-16 rounded-2xl bg-white/[0.03] border-white/5 text-center text-white font-bold tracking-[0.3em] transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50" 
+                               className="w-full h-16 rounded-2xl bg-primary/5 border border-primary/20 text-center text-primary font-black text-xl tracking-[0.5em] transition-all focus:bg-primary/10 focus:ring-0 focus:border-primary focus:shadow-[0_0_20px_rgba(251,26,26,0.4)] placeholder:text-primary/30 placeholder:text-sm placeholder:tracking-[0.2em]" 
                                required 
                              />
                            )}
