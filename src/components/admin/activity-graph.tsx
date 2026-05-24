@@ -35,8 +35,8 @@ export function ActivityGraph({ data, maxActivity }: { data: DayActivity[]; maxA
           <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
             <defs>
               <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.6" />
-                <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                <stop offset="0%" stopColor="#FB1A1A" stopOpacity="0.6" />
+                <stop offset="100%" stopColor="#FB1A1A" stopOpacity="0.0" />
               </linearGradient>
             </defs>
             
@@ -92,10 +92,10 @@ export function ActivityGraph({ data, maxActivity }: { data: DayActivity[]; maxA
                 }, "");
               })()} 
               fill="none" 
-              stroke="#10b981" 
+              stroke="#FB1A1A" 
               strokeWidth="3" 
               vectorEffect="non-scaling-stroke" 
-              className="drop-shadow-[0_0_12px_rgba(16,185,129,0.8)]"
+              className="drop-shadow-[0_0_12px_rgba(251,26,26,0.8)]"
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ pathLength: 1, opacity: 1 }}
               transition={{ duration: 1.5, ease: "easeInOut" }}
@@ -125,10 +125,9 @@ export function ActivityGraph({ data, maxActivity }: { data: DayActivity[]; maxA
                 {/* Vertical Grid Line */}
                 <div className="absolute inset-y-0 w-px bg-white/[0.03] group-hover:bg-white/10 transition-colors duration-300 pointer-events-none left-1/2 -translate-x-1/2" />
                 
-                {/* Hover Tooltip */}
                 {day.count > 0 && (
                   <div 
-                    className="absolute bg-black/95 border border-emerald-500/30 text-emerald-400 text-[10px] px-3 py-1.5 rounded-lg font-black whitespace-nowrap shadow-[0_0_20px_rgba(16,185,129,0.15)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 left-1/2 -translate-x-1/2"
+                    className="absolute bg-black/95 border border-primary/30 text-primary text-[10px] px-3 py-1.5 rounded-lg font-black whitespace-nowrap shadow-[0_0_20px_rgba(251,26,26,0.15)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 left-1/2 -translate-x-1/2"
                     style={{ top: `calc(${y}% - 40px)` }}
                   >
                     {day.count} EVENTS
@@ -140,7 +139,7 @@ export function ActivityGraph({ data, maxActivity }: { data: DayActivity[]; maxA
                   className="absolute left-1/2 z-10" 
                   style={{ top: `${y}%`, transform: 'translate(-50%, -50%)' }}
                 >
-                  <div className={`w-3 h-3 rounded-full border-[2.5px] border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-all duration-300 group-hover:scale-[1.8] group-hover:bg-emerald-100 ${isSelected ? 'scale-[1.8] bg-emerald-100 shadow-[0_0_20px_rgba(52,211,153,0.8)]' : 'bg-[#111]'}`} />
+                  <div className={`w-3 h-3 rounded-full border-[2.5px] border-primary shadow-[0_0_10px_rgba(251,26,26,0.5)] transition-all duration-300 group-hover:scale-[1.8] group-hover:bg-primary/20 ${isSelected ? 'scale-[1.8] bg-primary/20 shadow-[0_0_20px_rgba(251,26,26,0.8)]' : 'bg-[#111]'}`} />
                 </div>
                 
                 {/* X-Axis Label */}
