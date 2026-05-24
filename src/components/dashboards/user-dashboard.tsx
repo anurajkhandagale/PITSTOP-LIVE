@@ -217,18 +217,15 @@ export function UserDashboard({ initialRequests, stats, userName }: UserDashboar
                                     href={`https://www.google.com/maps/dir/?api=1&destination=${req.garageLat},${req.garageLng}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-full md:w-auto flex-shrink-0"
+                                    className="w-full md:flex-1"
                                   >
                                     <Button 
                                       size="lg" 
                                       variant="outline" 
-                                      className="w-full md:w-16 h-16 rounded-[22px] border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all group/nav relative"
+                                      className="w-full h-16 rounded-[22px] border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all group/nav"
                                     >
-                                      <MapPin className="w-5 h-5 text-primary md:mr-0 mr-3 group-hover:scale-110 transition-transform" />
-                                      <span className="md:hidden font-black uppercase italic tracking-widest text-[11px] text-white">Live Directions</span>
-                                      <div className="hidden md:block absolute -top-10 bg-black/80 text-[10px] uppercase font-black px-3 py-1.5 rounded-lg border border-white/10 opacity-0 group-hover/nav:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
-                                        Live Directions
-                                      </div>
+                                      <Navigation className="w-4 h-4 text-primary mr-3 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                      <span className="font-black uppercase italic tracking-widest text-[11px] text-white">Live Route</span>
                                     </Button>
                                   </a>
                                 )}
