@@ -163,7 +163,7 @@ export function ActivityGraph({ data, maxActivity }: { data: DayActivity[]; maxA
           >
             <div className="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
               <div className="flex items-center gap-3">
-                <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-black uppercase tracking-widest">
+                <span className="px-3 py-1 bg-primary/20 text-primary rounded-lg text-xs font-black uppercase tracking-widest">
                   Day {data.findIndex(d => d.date === selectedDay.date) + 1}
                 </span>
                 <span className="text-white/50 text-sm font-bold">{new Date(selectedDay.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
@@ -176,29 +176,57 @@ export function ActivityGraph({ data, maxActivity }: { data: DayActivity[]; maxA
               </button>
             </div>
             
-            <div className="p-4 overflow-y-auto space-y-2 flex-1 scrollbar-none">
-              {selectedDay.events.map((evt, idx) => (
-                <div key={idx} className="p-3 bg-white/[0.03] border border-white/5 rounded-xl flex items-center justify-between hover:bg-white/[0.05] transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-inner ${
-                      evt.type === 'User' ? 'bg-primary/20 text-primary' :
-                      evt.type === 'Garage' ? 'bg-blue-500/20 text-blue-500' :
-                      'bg-amber-500/20 text-amber-500'
-                    }`}>
-                      {evt.type === 'User' && <Users className="w-5 h-5" />}
-                      {evt.type === 'Garage' && <Store className="w-5 h-5" />}
-                      {evt.type === 'SOS' && <AlertTriangle className="w-5 h-5" />}
+            <div className="p-8 flex flex-col md:flex-row items-center justify-center gap-12 flex-1">
+              {(() => {
+                const total = selectedDay.events.length || 1;
+                const usersCount = selectedDay.events.filter(e => e.type === "User").length;
+                const garagesCount = selectedDay.events.filter(e => e.type === "Garage").length;
+                const sosCount = selectedDay.events.filter(e => e.type === "SOS").length;
+
+                const userPct = (usersCount / total) * 100;
+                const garagePct = (garagesCount / total) * 100;
+                const sosPct = (sosCount / total) * 100;
+
+                return (
+                  <>
+                    <div 
+                      className="w-40 h-40 rounded-full shadow-[0_0_40px_rgba(251,26,26,0.15)] border-8 border-[#080808]"
+                      style={{
+                        background: selectedDay.events.length === 0 
+                          ? '#111' 
+                          : `conic-gradient(
+                              #FB1A1A 0% ${sosPct}%, 
+                              #b91c1c ${sosPct}% ${sosPct + userPct}%, 
+                              #fca5a5 ${sosPct + userPct}% 100%
+                            )`
+                      }}
+                    />
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-4 h-4 rounded-full bg-[#FB1A1A] shadow-[0_0_10px_rgba(251,26,26,0.5)]" />
+                        <div>
+                          <p className="text-sm font-bold text-white leading-tight">SOS Requests</p>
+                          <p className="text-xs text-white/50">{sosCount} Events ({sosPct.toFixed(0)}%)</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="w-4 h-4 rounded-full bg-[#b91c1c]" />
+                        <div>
+                          <p className="text-sm font-bold text-white leading-tight">New Users</p>
+                          <p className="text-xs text-white/50">{usersCount} Events ({userPct.toFixed(0)}%)</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="w-4 h-4 rounded-full bg-[#fca5a5]" />
+                        <div>
+                          <p className="text-sm font-bold text-white leading-tight">New Garages</p>
+                          <p className="text-xs text-white/50">{garagesCount} Events ({garagePct.toFixed(0)}%)</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-white leading-tight">{evt.title}</p>
-                      <p className="text-[10px] text-white/40 font-black uppercase tracking-widest mt-1">New {evt.type}</p>
-                    </div>
-                  </div>
-                  <div className="text-[10px] font-black tracking-widest text-white/30 uppercase bg-black/50 px-2 py-1 rounded-md border border-white/5">
-                    {evt.time}
-                  </div>
-                </div>
-              ))}
+                  </>
+                );
+              })()}
             </div>
           </motion.div>
         )}

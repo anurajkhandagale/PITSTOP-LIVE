@@ -95,11 +95,8 @@ export default async function AdminDashboardOverview() {
           </div>
 
           {/* Activity Graph */}
-          <div className="bg-[#141414] rounded-2xl p-6 flex-1 min-h-[400px] flex flex-col">
-            <h2 className="text-lg font-medium text-white mb-6">Platform Activity</h2>
-            <div className="flex-1 -mx-4">
-              <ActivityGraph data={last14Days} maxActivity={maxActivity} />
-            </div>
+          <div className="flex-1 flex flex-col min-h-[400px]">
+            <ActivityGraph data={last14Days} maxActivity={maxActivity} />
           </div>
         </div>
 
