@@ -6,6 +6,9 @@ export const transporter = nodemailer.createTransport({
     user: process.env.GMAIL_EMAIL,
     pass: process.env.GMAIL_APP_PASSWORD,
   },
+  connectionTimeout: 5000,
+  greetingTimeout: 5000,
+  socketTimeout: 5000,
 });
 
 export const FROM_EMAIL = `"PitStop Live" <${process.env.GMAIL_EMAIL}>`;

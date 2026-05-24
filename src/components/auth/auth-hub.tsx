@@ -196,8 +196,8 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
   const handleAction = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // If it's register or forgot, they MUST verify email first
-    if (mode !== "login" && !otpSent) {
+    // ALL modes must verify email first
+    if (!otpSent) {
       setError("Please click 'SEND OTP CODE' and verify your email first.");
       return;
     }
@@ -206,14 +206,12 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
     setError("");
     
     try {
-      // 1. Verify OTP first if not login
-      if (mode !== "login") {
-        const otpVerification = await verifyOtpAction(email, otp, mode as any);
-        if (!otpVerification.success) {
-          setError("Invalid or expired OTP code.");
-          setLoading(false);
-          return;
-        }
+      // 1. Verify OTP first for ALL modes
+      const otpVerification = await verifyOtpAction(email, otp, mode as any);
+      if (!otpVerification.success) {
+        setError("Invalid or expired OTP code.");
+        setLoading(false);
+        return;
       }
       if (mode === "login") {
         const formData = new FormData();
@@ -462,10 +460,9 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                       </div>
                     )}
 
-                    {/* OTP Section (Only for Register/Forgot) */}
-                    {mode !== "login" && (
-                      <div className="space-y-2 relative">
-                         <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Email Verification</label>
+                    {/* OTP Section (Required for all modes) */}
+                    <div className="space-y-2 relative">
+                       <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Email Verification</label>
                          <div className="flex gap-4">
                            {!otpSent ? (
                              <Button 
@@ -486,9 +483,8 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                                required 
                              />
                            )}
-                         </div>
-                      </div>
-                    )}
+                       </div>
+                    </div>
                   </div>
                   
                   <Button type="submit" disabled={loading} className="w-full h-20 text-sm font-black font-outfit uppercase italic tracking-[0.2em] text-white bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/20 rounded-3xl mt-4 group">
