@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { otpsTable } from "@/db/schema/otps";
 import { eq, and, gt } from "drizzle-orm";
+import { transporter, FROM_EMAIL } from "@/lib/mailer";
 
 export function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -20,6 +21,38 @@ export async function createAndSendOtp(email: string, purpose: "register" | "log
 
   // Log to console for development visibility
   console.log(`\n--- [CAPTCHA] ---\nEmail: ${email}\nCode:   ${otp}\n------------------------\n`);
+
+  // Send real email via Gmail
+  try {
+    let subject = "Your PitStop Live OTP Code";
+    let text = `Your OTP code is: ${otp}. It will expire in 10 minutes.`;
+    
+    if (purpose === "register") {
+      subject = "Welcome to PitStop Live - Verification Code";
+      text = `Thank you for registering! Your verification code is: ${otp}. It will expire in 10 minutes.`;
+    } else if (purpose === "forgot") {
+      subject = "PitStop Live - Password Reset Code";
+      text = `You requested a password reset. Your OTP code is: ${otp}. It will expire in 10 minutes.`;
+    }
+
+    await transporter.sendMail({
+      from: FROM_EMAIL,
+      to: email,
+      subject,
+      text,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #FB1A1A;">PitStop Live</h2>
+          <p>${text.replace(otp, `<strong style="font-size: 24px; letter-spacing: 2px; color: #111;">${otp}</strong>`)}</p>
+          <p style="color: #888; font-size: 12px; margin-top: 30px;">If you didn't request this, you can safely ignore this email.</p>
+        </div>
+      `
+    });
+    console.log(`[MAILER] OTP successfully sent to ${email}`);
+  } catch (error) {
+    console.error("[MAILER ERROR] Failed to send OTP email. Have you set GMAIL_EMAIL and GMAIL_APP_PASSWORD in .env?", error);
+    // Continue execution so development console logging still works if email fails
+  }
 
   return { success: true, otp };
 }
