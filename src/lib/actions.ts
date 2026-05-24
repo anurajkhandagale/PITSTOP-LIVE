@@ -180,7 +180,7 @@ export async function logoutAction() {
   }
   
   // Manually clear cookies just in case NextAuth fails
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   cookieStore.getAll().forEach((c) => {
     if (c.name.includes("authjs") || c.name.includes("next-auth")) {
       cookieStore.delete(c.name);
