@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ShieldAlert, Users, Store, AlertTriangle, LayoutDashboard, Settings } from "lucide-react";
 import { AdminLogoutButton } from "@/components/admin/logout-button";
+import { AdminSidebarNav } from "@/components/admin/admin-sidebar-nav";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
