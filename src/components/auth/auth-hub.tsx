@@ -249,7 +249,15 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
       { govIdUrl, garageImageUrl, profileImageUrl, redirectTo: searchParams.get("redirectTo") || undefined }
     );
     setLoading(false);
-    if (result?.error) setError(result.error);
+    if (result?.error) {
+      setError(result.error);
+    } else {
+      setMode("login");
+      setStep("details");
+      setOtp("");
+      setCaptchaCode(Math.floor(100000 + Math.random() * 900000).toString());
+      setSuccess("Registration successful! Please login.");
+    }
   };
 
   return (
@@ -334,6 +342,15 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                    <AlertCircle className="w-4 h-4 text-primary" />
                 </div>
                 <p className="text-[10px] font-black text-primary uppercase tracking-widest italic">{error}</p>
+              </motion.div>
+            )}
+
+            {success && (
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-4">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                   <CheckCircle className="w-4 h-4 text-emerald-500" />
+                </div>
+                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest italic">{success}</p>
               </motion.div>
             )}
 

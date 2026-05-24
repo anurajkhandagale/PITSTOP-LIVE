@@ -129,8 +129,7 @@ export async function registerAction(
       });
     }
 
-    // Auto login after registration
-    await signIn("credentials", { email, password, redirectTo: redirectPath });
+    // Removed auto-login to fix localhost redirect issue and satisfy UX request.
     return { success: true };
   } catch (error: any) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) {

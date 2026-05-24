@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Zap, Menu, X, ArrowRight } from "lucide-react";
 import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { logoutAction } from "@/lib/actions";
 
@@ -71,16 +71,17 @@ export function Navbar({ session: serverSession }: { session?: any }) {
                   <Link href="/dashboard">
                     <Button variant="ghost" size="sm" className="font-bold uppercase tracking-[0.2em] text-[10px] text-primary italic">Live Dashboard</Button>
                   </Link>
-                  <form action={logoutAction}>
-                    <Button 
-                      type="submit"
-                      variant="outline" 
-                      size="sm" 
-                      className="border-white/10 font-black uppercase tracking-[0.2em] text-[9px] hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 italic px-4"
-                    >
-                      Disconnect Node
-                    </Button>
-                  </form>
+                  <Button 
+                    onClick={() => {
+                      setIsOpen(false);
+                      signOut({ callbackUrl: "/" });
+                    }}
+                    variant="outline" 
+                    size="sm" 
+                    className="border-white/10 font-black uppercase tracking-[0.2em] text-[9px] hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 italic px-4"
+                  >
+                    Disconnect Node
+                  </Button>
                 </>
               ) : (
                 <>
