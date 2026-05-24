@@ -206,35 +206,37 @@ export function UserDashboard({ initialRequests, stats, userName }: UserDashboar
                             {/* Open Chat available for both pending (to ask questions) and accepted */}
                             {/* Chat proceed only if accepted/completed */}
                             {["accepted", "completed"].includes(req.status) ? (
-                              <Link href={`/chat/${req.id}`} className="flex-1">
-                                <Button size="lg" className="w-full h-16 rounded-[22px] bg-primary hover:bg-primary/90 text-white font-black uppercase italic tracking-widest text-[11px] shadow-2xl shadow-primary/20">
-                                  <MessageSquare className="w-4 h-4 mr-3" /> Open Chat
-                                </Button>
-                              </Link>
+                              <div className="flex gap-3 w-full md:w-auto">
+                                <Link href={`/chat/${req.id}`} className="flex-1">
+                                  <Button size="lg" className="w-full h-16 rounded-[22px] bg-primary hover:bg-primary/90 text-white font-black uppercase italic tracking-widest text-[11px] shadow-2xl shadow-primary/20">
+                                    <MessageSquare className="w-4 h-4 md:mr-3" /> <span className="hidden md:inline">Open Chat</span>
+                                  </Button>
+                                </Link>
+                                {req.status === "accepted" && (
+                                  <a 
+                                    href={`https://www.google.com/maps/dir/?api=1&destination=${req.garageLat},${req.garageLng}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex-shrink-0"
+                                  >
+                                    <Button 
+                                      size="lg" 
+                                      variant="outline" 
+                                      className="w-16 h-16 rounded-[22px] border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all group/nav relative"
+                                    >
+                                      <Navigation className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                                      <div className="absolute -top-10 bg-black/80 text-[10px] uppercase font-black px-3 py-1.5 rounded-lg border border-white/10 opacity-0 group-hover/nav:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                                        Get Directions
+                                      </div>
+                                    </Button>
+                                  </a>
+                                )}
+                              </div>
                             ) : (
                               <div className="flex-1 px-6 py-4 rounded-[22px] bg-white/5 border border-white/5 flex items-center justify-center gap-3 animate-pulse">
                                 <Clock className="w-4 h-4 text-primary" />
                                 <span className="text-[10px] font-black uppercase tracking-widest text-white/40 italic">Waiting for Acceptance</span>
                               </div>
-                            )}
-                            {req.status === "accepted" && (
-                              <a 
-                                href={`https://www.google.com/maps/dir/?api=1&destination=${req.garageLat},${req.garageLng}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hidden md:block"
-                              >
-                                <Button 
-                                  size="lg" 
-                                  variant="outline" 
-                                  className="w-16 h-16 rounded-[22px] border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all group/nav relative"
-                                >
-                                  <Navigation className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-                                  <div className="absolute -top-10 bg-black/80 text-[10px] uppercase font-black px-3 py-1.5 rounded-lg border border-white/10 opacity-0 group-hover/nav:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                                    Get Directions
-                                  </div>
-                                </Button>
-                              </a>
                             )}
                             {req.status === "completed" && (
                               <Button 
