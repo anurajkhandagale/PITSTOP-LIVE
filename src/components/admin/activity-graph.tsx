@@ -28,32 +28,115 @@ export function ActivityGraph({ data, maxActivity }: { data: DayActivity[]; maxA
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="p-8">
-        <div className="flex h-64 items-end gap-2">
-          {data.map((day, i) => {
-            const height = Math.max((day.count / maxActivity) * 100, 5); // min 5% height
-            const isSelected = selectedDay?.date === day.date;
+      <CardContent className="p-8 pb-12 relative">
+        <div className="w-full h-64 relative group/chart mt-4">
+          
+          {/* Background SVG Area Chart */}
+          <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#10b981" stopOpacity="0.6" />
+                <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+              </linearGradient>
+            </defs>
             
+            {/* Horizontal 50% Guide Line */}
+            <line x1="0" y1="50" x2="100" y2="50" stroke="rgba(255,255,255,0.05)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            <line x1="0" y1="10" x2="100" y2="10" stroke="rgba(255,255,255,0.02)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            <line x1="0" y1="90" x2="100" y2="90" stroke="rgba(255,255,255,0.02)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+
+            <path 
+              d={(() => {
+                const points = data.map((day, i) => {
+                  const x = (i / (data.length - 1)) * 100;
+                  const normalizedCount = maxActivity > 0 ? day.count / maxActivity : 0;
+                  const y = 90 - (normalizedCount * 80); 
+                  return { x, y };
+                });
+                
+                const pathData = points.reduce((acc, pt, i, a) => {
+                  if (i === 0) return `M ${pt.x},${pt.y}`;
+                  const p = a[i - 1];
+                  const cp1x = (p.x + pt.x) / 2;
+                  const cp1y = p.y;
+                  const cp2x = (p.x + pt.x) / 2;
+                  const cp2y = pt.y;
+                  return `${acc} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${pt.x},${pt.y}`;
+                }, "");
+
+                return `${pathData} L 100,100 L 0,100 Z`;
+              })()} 
+              fill="url(#chartGradient)" 
+            />
+            
+            <path 
+              d={(() => {
+                const points = data.map((day, i) => {
+                  const x = (i / (data.length - 1)) * 100;
+                  const normalizedCount = maxActivity > 0 ? day.count / maxActivity : 0;
+                  const y = 90 - (normalizedCount * 80); 
+                  return { x, y };
+                });
+                
+                return points.reduce((acc, pt, i, a) => {
+                  if (i === 0) return `M ${pt.x},${pt.y}`;
+                  const p = a[i - 1];
+                  const cp1x = (p.x + pt.x) / 2;
+                  const cp1y = p.y;
+                  const cp2x = (p.x + pt.x) / 2;
+                  const cp2y = pt.y;
+                  return `${acc} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${pt.x},${pt.y}`;
+                }, "");
+              })()} 
+              fill="none" 
+              stroke="#10b981" 
+              strokeWidth="3" 
+              vectorEffect="non-scaling-stroke" 
+              className="drop-shadow-[0_0_12px_rgba(16,185,129,0.8)]"
+            />
+          </svg>
+
+          {/* Interactive HTML Points Overlay */}
+          {data.map((day, i) => {
+            const isSelected = selectedDay?.date === day.date;
+            const x = (i / (data.length - 1)) * 100;
+            const normalizedCount = maxActivity > 0 ? day.count / maxActivity : 0;
+            const y = 90 - (normalizedCount * 80); 
+
             return (
               <div 
-                key={i} 
-                className="flex-1 flex flex-col items-center gap-2 group h-full justify-end relative cursor-pointer"
-                onClick={() => {
-                  if (day.count > 0) setSelectedDay(day);
+                key={`point-${i}`}
+                className="absolute top-0 bottom-0 cursor-pointer group flex flex-col items-center z-10"
+                style={{ 
+                  left: `calc(${x}% - ${100 / 26}%)`, 
+                  width: `${100 / 13}%` 
                 }}
+                onClick={() => day.count > 0 && setSelectedDay(day)}
               >
-                <div className="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 border border-white/10 text-emerald-400 text-[10px] px-3 py-1.5 rounded-lg font-black z-10 pointer-events-none whitespace-nowrap shadow-xl">
-                  {day.count} EVENTS
+                {/* Vertical Grid Line */}
+                <div className="absolute inset-y-0 w-px bg-white/[0.03] group-hover:bg-white/10 transition-colors duration-300 pointer-events-none left-1/2 -translate-x-1/2" />
+                
+                {/* Hover Tooltip */}
+                {day.count > 0 && (
+                  <div 
+                    className="absolute bg-black/95 border border-emerald-500/30 text-emerald-400 text-[10px] px-3 py-1.5 rounded-lg font-black whitespace-nowrap shadow-[0_0_20px_rgba(16,185,129,0.15)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 left-1/2 -translate-x-1/2"
+                    style={{ top: `calc(${y}% - 40px)` }}
+                  >
+                    {day.count} EVENTS
+                  </div>
+                )}
+
+                {/* Data Point Circle */}
+                <div 
+                  className="absolute left-1/2 z-10" 
+                  style={{ top: `${y}%`, transform: 'translate(-50%, -50%)' }}
+                >
+                  <div className={`w-3 h-3 rounded-full border-[2.5px] border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-all duration-300 group-hover:scale-[1.8] group-hover:bg-emerald-100 ${isSelected ? 'scale-[1.8] bg-emerald-100 shadow-[0_0_20px_rgba(52,211,153,0.8)]' : 'bg-[#111]'}`} />
                 </div>
                 
-                <div className="w-full bg-white/5 rounded-t-lg overflow-hidden relative flex flex-col justify-end h-full group-hover:bg-white/10 transition-colors">
-                  <div 
-                    className={`w-full transition-all duration-500 ${isSelected ? 'bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.5)]' : 'bg-emerald-500/50 group-hover:bg-emerald-500'}`} 
-                    style={{ height: `${height}%` }}
-                  />
-                </div>
-                <span className={`text-[10px] uppercase font-black tracking-widest hidden md:block transition-colors ${isSelected ? 'text-emerald-400' : 'text-white/30 group-hover:text-white/60'}`}>
-                  Day {i+1}
+                {/* X-Axis Label */}
+                <span className="absolute -bottom-8 text-[10px] uppercase font-black tracking-widest text-white/30 group-hover:text-white/60 transition-colors hidden md:block left-1/2 -translate-x-1/2 whitespace-nowrap">
+                  {i % 2 === 0 || i === data.length - 1 ? `Day ${i + 1}` : ''}
                 </span>
               </div>
             );
