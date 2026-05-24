@@ -45,7 +45,7 @@ export function ActivityGraph({ data, maxActivity }: { data: DayActivity[]; maxA
             <line x1="0" y1="10" x2="100" y2="10" stroke="rgba(255,255,255,0.02)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
             <line x1="0" y1="90" x2="100" y2="90" stroke="rgba(255,255,255,0.02)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
 
-            <path 
+            <motion.path 
               d={(() => {
                 const points = data.map((day, i) => {
                   const x = (i / (data.length - 1)) * 100;
@@ -67,9 +67,12 @@ export function ActivityGraph({ data, maxActivity }: { data: DayActivity[]; maxA
                 return `${pathData} L 100,100 L 0,100 Z`;
               })()} 
               fill="url(#chartGradient)" 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.5 }}
             />
             
-            <path 
+            <motion.path 
               d={(() => {
                 const points = data.map((day, i) => {
                   const x = (i / (data.length - 1)) * 100;
@@ -93,6 +96,9 @@ export function ActivityGraph({ data, maxActivity }: { data: DayActivity[]; maxA
               strokeWidth="3" 
               vectorEffect="non-scaling-stroke" 
               className="drop-shadow-[0_0_12px_rgba(16,185,129,0.8)]"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
             />
           </svg>
 
@@ -104,13 +110,16 @@ export function ActivityGraph({ data, maxActivity }: { data: DayActivity[]; maxA
             const y = 90 - (normalizedCount * 80); 
 
             return (
-              <div 
+              <motion.div 
                 key={`point-${i}`}
                 className="absolute top-0 bottom-0 cursor-pointer group flex flex-col items-center z-10"
                 style={{ 
                   left: `calc(${x}% - ${100 / 26}%)`, 
                   width: `${100 / 13}%` 
                 }}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 + i * 0.05 }}
                 onClick={() => day.count > 0 && setSelectedDay(day)}
               >
                 {/* Vertical Grid Line */}
@@ -138,7 +147,7 @@ export function ActivityGraph({ data, maxActivity }: { data: DayActivity[]; maxA
                 <span className="absolute -bottom-8 text-[10px] uppercase font-black tracking-widest text-white/30 group-hover:text-white/60 transition-colors hidden md:block left-1/2 -translate-x-1/2 whitespace-nowrap">
                   {i % 2 === 0 || i === data.length - 1 ? `Day ${i + 1}` : ''}
                 </span>
-              </div>
+              </motion.div>
             );
           })}
         </div>
