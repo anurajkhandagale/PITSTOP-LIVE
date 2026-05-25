@@ -53,31 +53,14 @@ export async function uploadFileAction(formData: FormData) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Aggressive slugify for Windows safety
-    const safeName = file.name
-      .toLowerCase()
-      .replace(/[^a-z0-9.]/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "");
-    
-    const filename = `${Date.now()}-${safeName}`;
-    const uploadDir = path.resolve(process.cwd(), "public", "uploads");
+    // For Vercel deployments, the local filesystem is read-only.
+    // Instead of using S3 for this presentation, we convert the image directly to a Base64 Data URL
+    // and store it in the PostgreSQL text column.
+    const mimeType = file.type || "application/octet-stream";
+    const base64String = buffer.toString("base64");
+    const dataUrl = `data:${mimeType};base64,${base64String}`;
 
-    console.log(`[UPLOAD] Attempting to save file to: ${uploadDir}`);
-
-    // Ensure directory exists with robust error handling
-    await fs.mkdir(uploadDir, { recursive: true }).catch((err) => {
-       if (err.code !== 'EEXIST') {
-         console.error("[UPLOAD DIR ERROR]", err);
-         throw err;
-       }
-    });
-    
-    const filePath = path.join(uploadDir, filename);
-    await fs.writeFile(filePath, buffer);
-    
-    console.log(`[UPLOAD SUCCESS] File saved to: ${filePath}`);
-    return { url: `/api/uploads/${filename}` };
+    return { url: dataUrl };
   } catch (error: any) {
     console.error("[UPLOAD FATAL ERROR]", error);
     return { error: `Upload failed: ${error.message || "Unknown error"}` };
