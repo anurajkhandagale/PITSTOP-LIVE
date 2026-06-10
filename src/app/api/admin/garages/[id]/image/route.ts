@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { garagesTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user || (session.user as any).role !== "admin") {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -17,7 +17,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     return new NextResponse("Invalid image type", { status: 400 });
   }
 
-  const garageId = parseInt(params.id);
+  const { id } = await params;
+  const garageId = parseInt(id);
   if (isNaN(garageId)) {
     return new NextResponse("Invalid garage ID", { status: 400 });
   }
