@@ -35,25 +35,38 @@ export function Base64Viewer({ url, label, className, icon: Icon = ExternalLink 
       </button>
       
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="relative max-w-4xl w-full max-h-[90vh] flex flex-col bg-[#09090b] border border-white/10 rounded-[24px] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/5">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4" onClick={() => setOpen(false)}>
+          <div 
+            className="relative w-full max-w-[500px] aspect-square flex flex-col bg-[#09090b] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/5 shrink-0">
               <h3 className="text-white font-black uppercase italic tracking-widest text-sm">{label}</h3>
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={() => setOpen(false)} 
-                className="text-white/50 hover:text-white rounded-full bg-white/5 hover:bg-white/10"
+                className="text-white/50 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </Button>
             </div>
-            <div className="p-4 overflow-auto flex items-center justify-center bg-black/50 min-h-[300px]">
+            
+            <div className="flex-1 overflow-hidden relative flex items-center justify-center bg-black/80">
               {url.startsWith("data:application/pdf") ? (
-                <iframe src={url} className="w-full h-[70vh] rounded-xl border border-white/10" />
+                <iframe src={url} className="w-full h-full border-0" />
               ) : (
-                <img src={url} alt={label} className="max-w-full max-h-[70vh] object-contain rounded-xl shadow-2xl" />
+                <img src={url} alt={label} className="w-full h-full object-cover" />
               )}
+            </div>
+
+            <div className="p-4 border-t border-white/10 bg-white/5 shrink-0">
+              <Button 
+                className="w-full h-14 rounded-[20px] bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-widest text-xs italic transition-all"
+                onClick={() => setOpen(false)}
+              >
+                Go Back
+              </Button>
             </div>
           </div>
         </div>
