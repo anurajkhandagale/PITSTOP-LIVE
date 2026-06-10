@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { usersTable } from "@/db/schema";
 import { desc } from "drizzle-orm";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, UserCog, MoreVertical, Trash2, ExternalLink, FileBadge } from "lucide-react";
+import { Search, UserCog, MoreVertical, Trash2, ExternalLink, FileText } from "lucide-react";
 import { FormattedDate } from "@/components/ui/formatted-date";
 import { Button } from "@/components/ui/button";
 import { SafeImage } from "@/components/ui/safe-image";
@@ -80,7 +80,7 @@ export default async function AdminUsersPage() {
                       <Base64Viewer 
                         url={user.govIdUrl} 
                         label="View ID" 
-                        icon={FileBadge}
+                        icon={FileText}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-400 hover:text-blue-300 border border-blue-500/20 transition-colors w-fit" 
                       />
                     ) : (
