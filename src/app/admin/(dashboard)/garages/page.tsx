@@ -7,6 +7,7 @@ import { Search, Store, MapPin, Trash2, CheckCircle, ExternalLink } from "lucide
 import { FormattedDate } from "@/components/ui/formatted-date";
 import { Button } from "@/components/ui/button";
 import { SafeImage } from "@/components/ui/safe-image";
+import { Base64Viewer } from "@/components/admin/base64-viewer";
 import { deleteGarageAction } from "@/lib/admin-actions";
 import { GarageTierSelector } from "./garage-tier-selector";
 
@@ -90,9 +91,11 @@ export default async function AdminGaragesPage() {
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                             <CheckCircle className="w-3 h-3" /> Verified
                           </span>
-                          <a href={garage.govIdUrl} target="_blank" rel="noreferrer" className="block text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1 font-bold">
-                            View ID <ExternalLink className="w-3 h-3" />
-                          </a>
+                          <Base64Viewer 
+                            url={garage.govIdUrl} 
+                            label="View ID" 
+                            className="block text-[10px] text-blue-400 hover:text-blue-300 font-bold w-fit" 
+                          />
                         </div>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/10 text-white/50 border border-white/10">
@@ -101,9 +104,11 @@ export default async function AdminGaragesPage() {
                       )}
                     </div>
                     {garage.garageImageUrl && (
-                      <a href={garage.garageImageUrl} target="_blank" rel="noreferrer" className="block text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1 font-bold">
-                        View Image <ExternalLink className="w-3 h-3" />
-                      </a>
+                      <Base64Viewer 
+                        url={garage.garageImageUrl} 
+                        label="View Image" 
+                        className="block text-[10px] text-blue-400 hover:text-blue-300 font-bold w-fit" 
+                      />
                     )}
                   </td>
                   <td className="p-4 text-right">

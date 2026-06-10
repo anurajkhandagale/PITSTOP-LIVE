@@ -7,6 +7,7 @@ import { Search, UserCog, MoreVertical, Trash2, ExternalLink, FileBadge } from "
 import { FormattedDate } from "@/components/ui/formatted-date";
 import { Button } from "@/components/ui/button";
 import { SafeImage } from "@/components/ui/safe-image";
+import { Base64Viewer } from "@/components/admin/base64-viewer";
 import { deleteUserAction } from "@/lib/admin-actions";
 
 export default async function AdminUsersPage() {
@@ -76,9 +77,12 @@ export default async function AdminUsersPage() {
                   </td>
                   <td className="p-4">
                     {user.govIdUrl ? (
-                      <a href={user.govIdUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-400 hover:text-blue-300 border border-blue-500/20 transition-colors">
-                        <FileBadge className="w-3 h-3" /> View ID
-                      </a>
+                      <Base64Viewer 
+                        url={user.govIdUrl} 
+                        label="View ID" 
+                        icon={FileBadge}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-400 hover:text-blue-300 border border-blue-500/20 transition-colors w-fit" 
+                      />
                     ) : (
                       <span className="text-white/20 text-xs italic">None</span>
                     )}
