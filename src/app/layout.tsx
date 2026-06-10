@@ -11,6 +11,8 @@ import { auth } from "@/auth";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
+import { Analytics } from "@vercel/analytics/next";
+
 export const metadata: Metadata = {
   title: "PitStop Live | Hyper-Fast Roadside Assistance",
   description: "Futuristic emergency garage finder with real-time tracking.",
@@ -44,6 +46,7 @@ export default async function RootLayout({
           <div className="relative z-10 pt-20">
             {children}
           </div>
+          <Analytics />
         </Providers>
       </body>
     </html>
