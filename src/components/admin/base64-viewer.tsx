@@ -35,9 +35,9 @@ export function Base64Viewer({ url, label, className, icon: Icon = ExternalLink 
       </button>
       
       {open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4" onClick={() => setOpen(false)}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={() => setOpen(false)}>
           <div 
-            className="relative w-full max-w-[500px] aspect-square flex flex-col bg-[#09090b] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            className="relative w-full max-w-[500px] aspect-square flex flex-col bg-[#09090b] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/5 shrink-0">
@@ -62,7 +62,7 @@ export function Base64Viewer({ url, label, className, icon: Icon = ExternalLink 
 
             <div className="p-4 border-t border-white/10 bg-white/5 shrink-0">
               <Button 
-                className="w-full h-14 rounded-[20px] bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-widest text-xs italic transition-all"
+                className="w-full h-14 rounded-[20px] bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/20 text-white font-black uppercase tracking-widest text-xs italic transition-all"
                 onClick={() => setOpen(false)}
               >
                 Go Back
