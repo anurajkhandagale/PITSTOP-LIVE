@@ -71,6 +71,18 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
   const [services, setServices] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  
+  // Auto-hide notifications after 5 seconds
+  useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError("");
+        setSuccess("");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, success]);
+
   const [location, setLocation] = useState({ lat: 12.9716, lng: 77.5946 });
   const [govIdUrl, setGovIdUrl] = useState("");
   const [garageImageUrl, setGarageImageUrl] = useState("");
@@ -274,15 +286,24 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
       { name, email, password, role, garageName, services, phone, address, lat: location.lat, lng: location.lng },
       { govIdUrl, garageImageUrl, profileImageUrl, redirectTo: searchParams.get("redirectTo") || undefined }
     );
-    setLoading(false);
     if (result?.error) {
       setError(result.error);
+      setLoading(false);
     } else {
-      setMode("login");
-      setStep("details");
-      setOtp("");
-      setOtpSent(false);
-      setSuccess("Registration successful! Please login.");
+      // Auto login after successful registration
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("password", password);
+      
+      const loginRes = await loginAction(formData);
+      setLoading(false);
+      
+      if (loginRes?.error) {
+        setError(loginRes.error);
+      } else {
+        const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+        router.push(redirectTo);
+      }
     }
   };
 

@@ -84,13 +84,13 @@ export async function registerAction(
   }
 
   try {
-    const existing = await (db as any).select().from(usersTable).where(eq(usersTable.email as any, email)).limit(1);
+    const existing = await (db as any).select().from(usersTable).where(eq(usersTable.email as any, cleanEmail)).limit(1);
     if (existing.length > 0) return { error: "Email already registered" };
 
     const passwordHash = await bcrypt.hash(password, 10);
     const [user] = await (db as any).insert(usersTable).values({
       name,
-      email,
+      email: cleanEmail,
       passwordHash,
       role,
       emailVerified: true,
@@ -142,12 +142,26 @@ export async function loginAction(formData: FormData) {
     return { error: "Missing required fields" };
   }
 
+  const cleanEmail = email.toLowerCase();
+
+  const userRows = await (db as any).select().from(usersTable).where(eq(usersTable.email as any, cleanEmail)).limit(1);
+  const user = userRows[0];
+  
+  if (!user) {
+    return { error: "Invalid email" };
+  }
+  
+  const passwordsMatch = await bcrypt.compare(password, user.passwordHash);
+  if (!passwordsMatch) {
+    return { error: "Invalid password" };
+  }
+
   try {
-    await signIn("credentials", { email, password, redirect: false });
+    await signIn("credentials", { email: cleanEmail, password, redirect: false });
     return { success: true };
   } catch (error: any) {
-    if (error instanceof AuthError) {
-      return { error: "Invalid email or password" };
+    if (error?.digest?.startsWith("NEXT_REDIRECT")) {
+      throw error;
     }
     return { error: "Something went wrong" };
   }
@@ -175,8 +189,9 @@ export async function logoutAction() {
 }
 
 export async function forgotPasswordAction(email: string) {
+  const cleanEmail = email.toLowerCase();
   try {
-    const existing = await (db as any).select().from(usersTable).where(eq(usersTable.email as any, email)).limit(1);
+    const existing = await (db as any).select().from(usersTable).where(eq(usersTable.email as any, cleanEmail)).limit(1);
     if (existing.length === 0) return { error: "No account found with this email" };
 
     return { success: true };
@@ -188,13 +203,14 @@ export async function forgotPasswordAction(email: string) {
 
 export async function resetPasswordAction(values: any) {
   const { email, newPassword } = values;
+  const cleanEmail = email.toLowerCase();
 
   try {
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
     await (db as any).update(usersTable)
       .set({ passwordHash })
-      .where(eq(usersTable.email as any, email));
+      .where(eq(usersTable.email as any, cleanEmail));
 
     return { success: true };
   } catch (error) {
