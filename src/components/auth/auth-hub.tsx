@@ -444,14 +444,14 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                         </div>
                         <div className="space-y-2 flex-1">
                           <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Full Name</label>
-                          <Input placeholder="e.g. Rahul Sharma" value={name} onChange={(e) => setName(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold uppercase tracking-widest transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
+                          <Input placeholder="e.g. Rahul Sharma" value={name} onChange={(e) => setName(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold tracking-widest transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
                         </div>
                       </div>
                     )}
                     
                     <div className="space-y-2">
                        <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-1 h-3 block">Email Address</label>
-                       <Input type="email" placeholder="rahul@example.in" value={email} onChange={(e) => setEmail(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold uppercase tracking-widest transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
+                       <Input type="email" placeholder="rahul@example.in" value={email} onChange={(e) => setEmail(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 text-white font-bold tracking-wide transition-all focus:bg-white/5 focus:ring-0 focus:border-primary/50 placeholder:text-white/10" required />
                     </div>
 
                     {mode !== "forgot" && (
@@ -557,11 +557,11 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-[10px] font-black text-white/30 uppercase tracking-widest pl-1">Garage Name</label>
-                          <Input placeholder="e.g. Sharma Auto Motors" value={garageName} onChange={(e) => setGarageName(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest" required />
+                          <Input placeholder="e.g. Sharma Auto Motors" value={garageName} onChange={(e) => setGarageName(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 font-bold tracking-widest" required />
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black text-white/30 uppercase tracking-widest pl-1">Phone Number</label>
-                          <Input placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest" required />
+                          <Input placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-16 rounded-2xl bg-white/[0.03] border-white/5 font-bold tracking-widest" required />
                         </div>
                       </div>
                       
@@ -579,7 +579,7 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
                                 handleGeocode();
                               }
                             }}
-                            className="h-16 flex-1 rounded-2xl bg-white/[0.03] border-white/5 font-bold uppercase tracking-widest text-[11px]" 
+                            className="h-16 flex-1 rounded-2xl bg-white/[0.03] border-white/5 font-bold tracking-widest text-[11px]" 
                             required 
                           />
                           {suggestions.length > 0 && (
