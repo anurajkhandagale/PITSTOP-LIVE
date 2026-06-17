@@ -221,7 +221,9 @@ export function AuthHub({ initialMode = true }: { initialMode?: boolean }) {
       // 1. Verify OTP first for ALL modes
       const otpVerification = await verifyOtpAction(email, otp, mode as any);
       if (!otpVerification.success) {
-        setError("Invalid or expired OTP code.");
+        setError("Invalid or expired OTP. You must request a new one.");
+        setOtpSent(false);
+        setOtp("");
         setLoading(false);
         return;
       }
