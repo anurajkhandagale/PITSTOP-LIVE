@@ -84,6 +84,7 @@ export async function registerAction(
   }
 
   try {
+    const cleanEmail = email.toLowerCase();
     const existing = await (db as any).select().from(usersTable).where(eq(usersTable.email as any, cleanEmail)).limit(1);
     if (existing.length > 0) return { error: "Email already registered" };
 
